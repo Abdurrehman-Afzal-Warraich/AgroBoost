@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "149622729159",
+    "project_id": "agroboost-e1cc5",
+    "storage_bucket": "agroboost-e1cc5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149622729159:android:8c38b2758e03a5d59111e2",
+        "android_client_info": {
+          "package_name": "com.agroboost.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3_p03SKoRhslo4O3IRNSRRVdlenOr7wE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,712 @@
+{
+  "languageSelection": "Select Language",
+  "english": "English",
+  "urdu": "Urdu",
+  "phoneNumber": "Phone Number",
+  "Pin Code": "Pin Code",
+  "welcome": "WELCOME",
+  "andYouAre": "AND YOU ARE ?",
+  "Sign In": "Sign In",
+  "Sign Up": "Sign Up",
+  "Email": "Email",
+  "password": "Password",
+  "Name": "Name",
+  "Confirm Password": "Confirm Password",
+  "farmer": "FARMER",
+  "expert": "EXPERT",
+  "buyer": "BUYER",
+  "changeLanguage": "Change Language",
+  "menu": "Menu",
+  "account": "Account",
+  "messages": "Messages",
+  "auctionSystem": "Auction System",
+  "yieldPrediction": "Yield Prediction",
+  "expertConsultation": "Expert Consultation",
+  "buyCoins": "Buy Coins",
+  "Enter Email": "Enter Email",
+  "Field Details": "Field Details",
+  "AgriBot":"AgriBot",
+  "fieldDetails": {
+    "title": "Field Details",
+    "addFields": "Add Fields",
+    "addFirstField": "Add Your First Field",
+    "noFields": "No fields added yet",
+    "yourFields": "Your Fields",
+    "addNewFields": "Add New Fields",
+    "field": "Field",
+    "cropType": "Crop Type",
+    "selectCropType": "Select Crop Type",
+    "soilType": "Soil Type",
+    "selectSoilType": "Select Soil Type",
+    "areaInAcres": "Area (in acres)",
+    "enterArea": "Enter area in acres",
+    "location": "Location",
+    "getCurrentLocation": "Get Current Location",
+    "sowingDate": "Sowing Date",
+    "selectSowingDate": "Select Sowing Date",
+    "addAnotherField": "Add Another Field",
+    "cancel": "Cancel",
+    "saveFields": "Save Fields",
+    "success": "Fields data saved successfully",
+    "error": {
+      "fillRequired": "Please fill in all required fields",
+      "saveFailed": "Failed to save field data",
+      "someFailed": "Failed to save some fields",
+      "signInRequired": "Please sign in to save field data"
+    }
+  },
+  "newFarmer": "New Farmer",
+  "fillDetails": "Please fill in the details below",
+  "phoneNumberPlaceholder": "Enter your 10-digit phone number",
+  "selectCity": "Select your city",
+  "addressPlaceholder": "Enter your complete address",
+  "Budget (PKR)": "Budget (PKR)",
+  "City": "City",
+  "Select City": "Select City",
+  "submit": "Submit",
+  "Lahore": "Lahore",
+  "Faisalabad": "Faisalabad",
+  "Rawalpindi": "Rawalpindi",
+  "Gujranwala": "Gujranwala",
+  "Multan": "Multan",
+  "Sargodha": "Sargodha",
+  "Sialkot": "Sialkot",
+  "Bahawalpur": "Bahawalpur",
+  "Sahiwal": "Sahiwal",
+  "Sheikhupura": "Sheikhupura",
+  "Jhang": "Jhang",
+  "Rahim Yar Khan": "Rahim Yar Khan",
+  "Kasur": "Kasur",
+  "Okara": "Okara",
+
+  "Permission to access location was denied": "Permission to access location was denied",
+  "Please enter a valid 10-digit phone number": "Please enter a valid 10-digit phone number",
+  "Please select your city": "Please select your city",
+  "Please enter your address": "Please enter your address",
+  "Please enter your budget": "Please enter your budget",
+  "User details saved successfully": "User details saved successfully",
+  "User not authenticated": "User not authenticated",
+  "Wheat Yield Prediction": "Wheat Yield Prediction",
+  
+  "Area": "Area",
+  "acres": "acres",
+  "Crop Type": "Crop Type",
+  "Soil Type": "Soil Type",
+  "Sowing Date": "Sowing Date",
+  
+  "Estimated Yield": "Estimated Yield",
+  "maunds": "maunds",
+  "higher than city average": "higher than city average",
+  "lower than city average": "lower than city average",
+  "City Average (per acre)": "City Average (per acre)",
+  "Total City Average": "Total City Average",
+  "Total Field Size": "Total Field Size",
+  "Yield Forecast Trend": "Yield Forecast Trend",
+  "Predicted Yield": "Predicted Yield",
+  "City Average": "City Average",
+  "Days Until Next Prediction": "Days Until Next Prediction",
+  "Predict Now": "Predict Now",
+  "Update Prediction": "Update Prediction",
+  "Prediction History": "Prediction History",
+  
+  "Yield (maunds)": "Yield (maunds)",
+  "Trend": "Trend",
+  "Increased": "Increased",
+  "Decreased": "Decreased",
+  "Stable": "Stable",
+  "N/A": "N/A",
+  "No Wheat Fields Found": "No Wheat Fields Found",
+  "Please add wheat field details to make yield predictions": "Please add wheat field details to make yield predictions",
+  "Add Wheat Field": "Add Wheat Field",
+  "Wheat": "Wheat",
+  "Enter your registered email address": "Enter your registered email address",
+  "Enter your email": "Enter your email",
+  "Sending...": "Sending...",
+  "Reset Password": "Reset Password",
+  "We'll send you an email with instructions to reset your password.": "We'll send you an email with instructions to reset your password.",
+  "Check Your Email": "Check Your Email",
+  "Next Steps:": "Next Steps:",
+  "Open the email": "Open the email",
+  "Click the reset link": "Click the reset link",
+  "Create a new password": "Create a new password",
+  "Return to the app and sign in": "Return to the app and sign in",
+  "Back to Sign In": "Back to Sign In",
+  "Reset email sent successfully": "Reset email sent successfully",
+  "Failed to send reset email": "Failed to send reset email",
+  "No account found with this email": "No account found with this email",
+  "Invalid email format": "Invalid email format",
+  "Too many requests. Please try again later": "Too many requests. Please try again later",
+  "Network error. Please check your internet connection": "Network error. Please check your internet connection",
+  "Please enter a valid email address": "Please enter a valid email address",
+  "We've sent you an email with a link to reset your password. Please check your inbox and follow the instructions.": "We've sent you an email with a link to reset your password. Please check your inbox and follow the instructions.",
+
+  "An error occurred while saving user details.": "An error occurred while saving user details.",
+  "Could not get your current location": "Could not get your current location",
+  "userDetailsSaved": "User details saved successfully",
+  "userNotAuthenticated": "User not authenticated",
+  "errorSavingDetails": "An error occurred while saving user details.",
+  "locationPermissionDenied": "Permission to access location was denied",
+  "locationError": "Could not get your current location",
+  "phoneNumberError": "Please enter a valid 10-digit phone number",
+  "cityError": "Please select your city",
+  "addressError": "Please enter a valid address",
+  "formValidationError": "Please fill all required fields correctly",
+  "currentWeather": "Current Weather",
+  "location": "Location",
+  "temperature": "Temperature",
+  "condition": "Condition",
+  "humidity": "Humidity",
+  "Initial prediction data created successfully": "Initial prediction data created successfully",
+  "Error fetching yield prediction": "Error fetching yield prediction",
+  "No field data available for prediction": "No field data available for prediction",
+  "Prediction updated successfully": "Prediction updated successfully",
+  "Failed to update prediction": "Failed to update prediction",
+  "Wait for days to complete": "Wait for days to complete",
+  "Please wait for days to complete before making a new prediction": "Please wait for days to complete before making a new prediction",
+  "First round starts 15 days after sowing": "First round starts 15 days after sowing",
+  "Each round represents 15 days": "Each round represents 15 days",
+  "failedToLoadWeather": "Failed to load weather data",
+  "as": "as",
+  "Don't Have Account": "Don't have an account?",
+  "Already Have Account": "Already have an account?",
+  "Create Account": "Create Account",
+  "Phone Number": "Phone Number",
+  "Error": "Error",
+  
+  "Name Required": "Name is required",
+  "Phone Number Required": "Phone number is required",
+  "Invalid Phone Number": "Invalid phone number format",
+  "Password Required": "Password is required",
+  "Passwords Must Match": "Passwords must match",
+  "Account Created Successfully": "Account created successfully. You can now sign in.",
+  "Enter Pin Code": "Enter Pin Code",
+  "Confirm Pin Code": "Confirm Pin Code",
+  "Pin Code Required": "Pin code is required",
+  "Pin Code Must Be 4 Digits": "Pin code must be 4 digits",
+  "agricultureSchemes": "Agriculture Schemes",
+  "windspeed": "Wind Speed",
+  "Forgot PIN": "Forgot PIN",
+  "Forgot PIN?": "Forgot PIN?",
+  "Enter your registered phone number": "Enter your registered phone number",
+  "Send PIN": "Send PIN",
+  "Verify PIN": "Verify PIN",
+  "Enter the PIN sent to your phone": "Enter the PIN sent to your phone",
+  "Verify": "Verify",
+  "Phone number cannot exceed 10 digits": "Phone number cannot exceed 10 digits",
+  "Phone number must start with 3": "Phone number must start with 3",
+  "Confirm": "Confirm",
+  "Are you sure you want to send PIN code to +92": "Are you sure you want to send PIN code to +92",
+  "Are you sure you want to create an account with phone number +92": "Are you sure you want to create an account with phone number +92",
+  "Cancel": "Cancel",
+  "Yes": "Yes",
+  "Profile": "Profile",
+  "Settings": "Settings",
+  "Help": "Help",
+  "Logout": "Logout",
+  "Edit Profile": "Edit Profile",
+  "Change PIN": "Change PIN",
+  "Notifications": "Notifications",
+  "Language": "Language",
+  "About Us": "About Us",
+  "Contact Support": "Contact Support",
+  "Privacy Policy": "Privacy Policy",
+  "Terms of Service": "Terms of Service",
+  "Personal Information": "Personal Information",
+  "Full Name": "Full Name",
+  "Email Address": "Email Address",
+  "Location": "Location",
+  "Save Changes": "Save Changes",
+  "Profile Updated": "Profile Updated",
+  "Account Settings": "Account Settings",
+  "Profile Settings": "Profile Settings",
+  "Change PIN Code": "Change PIN Code",
+  "Notification Settings": "Notification Settings",
+  "App Settings": "App Settings",
+  "Dark Mode": "Dark Mode",
+  "FAQ": "FAQ",
+  "Contact Us": "Contact Us",
+  "Report a Problem": "Report a Problem",
+  "Send Feedback": "Send Feedback",
+  "Subject": "Subject",
+  "Message": "Message",
+  "Submit": "Submit",
+  "Expertise": "Expertise",
+  "Experience": "Experience",
+  "Qualifications": "Qualifications",
+  "Consultation Hours": "Consultation Hours",
+  "Reviews": "Reviews",
+  "Rating": "Rating",
+  "Consultations": "Consultations",
+  "Coins": "Coins",
+  "Current Balance": "Current Balance",
+  "Transaction History": "Transaction History",
+  "Buy Coins": "Buy Coins",
+  "Earn Coins": "Earn Coins",
+  "Spent": "Spent",
+  "Earned": "Earned",
+  "Date": "Date",
+  "Orders": "Orders",
+  "Order History": "Order History",
+  "Active Orders": "Active Orders",
+  "Past Orders": "Past Orders",
+  "Order Details": "Order Details",
+  "Order Status": "Order Status",
+  "Order Date": "Order Date",
+  "Total Amount": "Total Amount",
+  "Payment Status": "Payment Status",
+  "Delivery Status": "Delivery Status",
+  "Track Order": "Track Order",
+  "Cancel Order": "Cancel Order",
+  "Reorder": "Reorder",
+  "Payment Method": "Payment Method",
+  "Shipping Address": "Shipping Address",
+  "Billing Address": "Billing Address",
+  
+  "landing": {
+    "title": "Welcome to AgriBot",
+    "options": {
+      "plantDiseases": "🌱 Identify Plant Diseases",
+      "cropAdvice": "🌾 Get Crop Advice",
+      "fertilizerRecommendations": "💧 Fertilizer Recommendations",
+      "pestControl": "🐛 Pest Control Solutions",
+      "fieldManagement": "🚜 Field Management Tips"
+    }
+  },
+  
+  "common": {
+    "loading": "Loading...",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next"
+  },
+  
+  "pestControl": {
+    "title": "Pest Control Solutions",
+    "labels": {
+      "pestIdentification": "Pest Identification",
+      "cropAffected": "Crop Affected",
+      "infestationSeverity": "Infestation Severity",
+      "chemicalPreference": "Chemical Preference",
+      "budget": "Budget"
+    },
+    "options": {
+      "pestIdentification": [
+        "Chewed leaves",
+        "Spots on plants",
+        "Flying insects",
+        "Worms in soil",
+        "Other"
+      ],
+      "cropAffected": [
+        "Wheat",
+        "Rice",
+        "Cotton",
+        "Vegetables",
+        "Fruits"
+      ],
+      "infestationSeverity": [
+        "A few plants",
+        "Half the field",
+        "Almost all crops"
+      ],
+      "chemicalPreference": [
+        "Chemical spray",
+        "Organic/natural",
+        "Not sure"
+      ],
+      "budget": [
+        "Low (basic solutions)",
+        "Medium",
+        "High (advanced solutions)"
+      ]
+    },
+    "submit": "Submit"
+  },
+  
+  "agribot": {
+    "title": "Welcome to AgriBot",
+    "description": "Your smart farming assistant. Get expert advice and solutions for your agricultural needs.",
+    "help": "Need Help?",
+    "loading": "Loading...",
+    "submit": "Submit",
+    "options": {
+      "plantDiseases": "🌱 Identify Plant Diseases",
+      "cropAdvice": "🌾 Get Crop Advice",
+      "pestControl": "🐛 Pest Control Solutions",
+      "fieldManagement": "🚜 Field Management Tips"
+    },
+    "cropAdvice": {
+      "title": "Crop Advice"
+     
+    },
+    "plantDiseases": {
+      "title": "Plant Disease Identification"
+    
+    }
+  },
+
+  "fieldManagement": {
+    "title": "Field Management",
+    "subtitle": "Get personalized recommendations for your field",
+    "fieldDetails": "Field Details",
+    "cropType": "Crop Type",
+    "growthStage": "Current Growth Stage",
+    "fieldSize": "Field Size",
+    "irrigationType": "Irrigation Type",
+    "soilType": "Soil Type",
+    "waterAvailability": "Water Availability Status",
+    "observedProblems": "Any Observed Problems?",
+    "rainfallStatus": "Recent Rainfall Status",
+    "selectOption": "Select an option",
+    "enterFieldSize": "Enter size",
+    "next": "Next",
+    "back": "Back",
+    "recommendationQuestions": "What advice do you need?",
+    "selectQuestionsDescription": "Select the types of recommendations you would like to receive",
+    "questions": {
+      "fertilizer": "Do you want fertilizer recommendations for next 2 weeks?",
+      "pestControl": "Would you like pest/disease control tips?",
+      "irrigation": "Need irrigation schedule suggestion based on current water status?",
+      "seasonalCare": "Do you want seasonal care tips for this crop?",
+      "growthStageTips": "Would you like to know the best practices for this growth stage?",
+      "weatherBasedAdvice": "Want weather-based spraying/fertilizer advice?"
+    },
+    "getRecommendations": "Get Recommendations",
+    "yourRecommendations": "Your Recommendations",
+    "startOver": "Start Over",
+    "errors": {
+      "cropTypeRequired": "Please select a crop type",
+      "growthStageRequired": "Please select a growth stage",
+      "fieldSizeRequired": "Please enter field size",
+      "fieldSizeNumber": "Field size must be a number",
+      "soilTypeRequired": "Please select a soil type",
+      "waterAvailabilityRequired": "Please select water availability status",
+      "problemsRequired": "Please select at least one option",
+      "pleaseFixErrors": "Please fix the errors in the form",
+      "selectAtLeastOneQuestion": "Please select at least one question",
+      "failedToGetRecommendations": "Failed to get recommendations. Please try again."
+    }
+  },
+
+  "plantDiseases": {
+    "title": "Plant Disease Identification",
+    "subtitle": "Upload a photo and get disease diagnosis",
+    "cropType": "Crop Type",
+    "selectCrop": "Select crop type",
+    "growthStage": "Growth Stage",
+    "selectGrowthStage": "Select growth stage",
+    "soilType": "Soil Type",
+    "selectSoilType": "Select soil type",
+    "affectedPart": "Affected Plant Part",
+    "selectAffectedPart": "Select affected part",
+    "affectedParts": {
+      "leaves": "Leaves",
+      "stem": "Stem",
+      "roots": "Roots",
+      "flowers": "Flowers",
+      "fruits": "Fruits",
+      "wholePlant": "Whole Plant"
+    },
+    "farmerObservation": "Your Observations",
+    "farmerObservationPlaceholder": "Describe what you see (e.g., yellow spots, wilting, etc.)",
+    "language": "Preferred Language for Results",
+    "uploadImage": "Upload Image of Affected Plant",
+    "addPhoto": "Add Photo",
+    "diseaseIdentified": "Disease identified successfully",
+    "results": {
+      "description": "Description",
+      "diseaseManagement": "Disease Management",
+      "preventiveMeasures": "Preventive Measures",
+      "localContext": "Local Context",
+      "close": "Close"
+    },
+    "errors": {
+      "cropTypeRequired": "Please select a crop type",
+      "growthStageRequired": "Please select a growth stage",
+      "soilTypeRequired": "Please select a soil type",
+      "affectedPartRequired": "Please select the affected plant part",
+      "observationRequired": "Please provide your observations",
+      "imageRequired": "Please upload an image of the affected plant",
+      "permissionRequired": "Please allow access to your photo library",
+      "imagePickFailed": "Failed to pick image. Please try again.",
+      "imageNotFound": "Selected image file does not exist",
+      "pleaseFixErrors": "Please fix the errors in the form",
+      "submissionFailed": "Failed to submit. Please try again.",
+      "unknownError": "An unknown error occurred"
+    }
+  },
+
+  "cropAdvice": {
+    "title": "Crop Advice",
+    "subtitle": "Get personalized advice for your crop",
+    "formTitle": "Tell us about your crop",
+    "cropType": "Crop Type",
+    "selectCrop": "Select crop type",
+    "growthStage": "Growth Stage",
+    "selectGrowthStage": "Select growth stage",
+    "soilType": "Soil Type",
+    "selectSoilType": "Select soil type",
+    "issue": "What issue are you facing?",
+    "selectIssue": "Select issue",
+    "issueOptions": {
+      "nutrient": "Nutrient Deficiency",
+      "water": "Water Management",
+      "growth": "Poor Growth",
+      "yield": "Low Yield"
+    },
+    "selectQuestions": "Select relevant questions",
+    "questions": {
+      "nutrient": {
+        "colorChanges": "What color changes have you noticed in the leaves?",
+        "symptomsLocation": "Are the symptoms appearing in new or old leaves?",
+        "recentFertilizers": "Have you applied any fertilizers recently?"
+      },
+      "water": {
+        "irrigationFrequency": "How often do you irrigate the field?",
+        "waterlogging": "Have you noticed any waterlogging?",
+        "wilting": "Are the leaves wilting despite watering?"
+      },
+      "growth": {
+        "stuntedGrowth": "Is the growth stunted compared to surrounding plants?",
+        "deformities": "Are there any visible deformities?",
+        "firstNoticed": "When did you first notice the poor growth?"
+      },
+      "yield": {
+        "comparison": "How does the current yield compare to previous seasons?",
+        "fruitSize": "Are the fruits/grains smaller than usual?",
+        "pestDamage": "Have you noticed any pest damage?"
+      }
+    },
+    "yourAdvice": "Your Crop Advice",
+    "getMoreAdvice": "Get More Advice",
+    "adviceGenerated": "Advice generated successfully",
+    "responses": {
+      "nutrient": {
+        "title": "Recommended actions for nutrient management:",
+        "options": {
+          "applyFertilizer": "Apply balanced NPK fertilizer",
+          "soilTest": "Conduct a soil test to identify specific deficiencies",
+          "foliarSpray": "Use foliar spray for quick nutrient uptake"
+        },
+        "preventionTitle": "Prevention measures:",
+        "prevention": {
+          "regularTesting": "Regular soil testing",
+          "organicMatter": "Add organic matter to improve soil fertility",
+          "balancedNutrition": "Maintain balanced nutrition throughout growing season"
+        }
+      },
+      "water": {
+        "title": "Recommended actions for water management:",
+        "options": {
+          "adjustIrrigation": "Adjust irrigation frequency based on soil moisture",
+          "improveDrainage": "Improve field drainage system",
+          "mulching": "Apply mulch to conserve soil moisture"
+        },
+        "preventionTitle": "Prevention measures:",
+        "prevention": {
+          "scheduledIrrigation": "Implement scheduled irrigation based on crop needs",
+          "rainwaterHarvesting": "Consider rainwater harvesting",
+          "droughtResistant": "Select drought-resistant varieties for dry areas"
+        }
+      },
+      "growth": {
+        "title": "Recommended actions for improving growth:",
+        "options": {
+          "checkRoots": "Check root health for disease or pest damage",
+          "pruneAffected": "Prune affected parts to promote new growth",
+          "growthStimulants": "Apply growth stimulants or hormones"
+        },
+        "preventionTitle": "Prevention measures:",
+        "prevention": {
+          "qualitySeeds": "Use quality seeds or seedlings",
+          "properSpacing": "Maintain proper spacing between plants",
+          "regularMonitoring": "Monitor plant growth regularly"
+        }
+      },
+      "yield": {
+        "title": "Recommended actions for improving yield:",
+        "options": {
+          "pollinationSupport": "Support pollination with bee attractants",
+          "thinFruits": "Thin fruits to improve size and quality",
+          "pestControl": "Implement integrated pest management"
+        },
+        "preventionTitle": "Prevention measures:",
+        "prevention": {
+          "cropRotation": "Practice crop rotation",
+          "improvedVarieties": "Use improved high-yielding varieties",
+          "optimalHarvesting": "Harvest at optimal time"
+        }
+      }
+    },
+    "errors": {
+      "cropTypeRequired": "Please select a crop type",
+      "growthStageRequired": "Please select a growth stage",
+      "soilTypeRequired": "Please select a soil type",
+      "issueRequired": "Please select the issue you're facing",
+      "questionsRequired": "Please select at least one question",
+      "pleaseFixErrors": "Please fix the errors in the form",
+      "submissionFailed": "Failed to submit. Please try again."
+    }
+  },
+
+  "cropTypes": {
+    "wheat": "Wheat",
+    "rice": "Rice",
+    "sugarcane": "Sugarcane",
+    "cotton": "Cotton",
+    "maize": "Maize",
+    "vegetables": "Vegetables",
+    "others": "Others"
+  },
+  "growthStages": {
+    "sowing": "Sowing",
+    "germination": "Germination",
+    "vegetative": "Vegetative",
+    "flowering": "Flowering",
+    "maturity": "Maturity",
+    "harvesting": "Harvesting"
+  },
+  "fieldSizeUnits": {
+    "acres": "Acres",
+    "kanal": "Kanal",
+    "marla": "Marla"
+  },
+  "irrigationTypes": {
+    "canal": "Canal",
+    "tube_well": "Tube Well",
+    "rain-fed": "Rain-fed",
+    "drip_irrigation": "Drip Irrigation",
+    "others": "Others"
+  },
+  "soilTypes": {
+    "sandy": "Sandy",
+    "loamy": "Loamy",
+    "clayey": "Clayey",
+    "silty": "Silty",
+    "saline": "Saline",
+    "unknown": "Unknown"
+  },
+  "waterAvailability": {
+    "good": "Good",
+    "moderate": "Moderate",
+    "poor": "Poor"
+  },
+  "observedProblems": {
+    "pest_attack": "Pest Attack",
+    "weeds": "Weeds",
+    "water_shortage": "Water Shortage",
+    "nutrient_deficiency": "Nutrient Deficiency",
+    "disease": "Disease",
+    "none": "None"
+  },
+  "rainfallStatus": {
+    "heavy_rain": "Heavy Rain",
+    "light_rain": "Light Rain",
+    "no_rain": "No Rain"
+  },
+
+    "New Farmer": "New Farmer",
+    "New Expert": "New Expert",
+    "New Buyer": "New Buyer",
+    
+    "Please fill in the details below": "Please fill in the details below",
+    
+    "Specialization": "Specialization",
+    "Select Specialization": "Select Specialization",
+    "Crop Management": "Crop Management",
+    "Soil Science": "Soil Science",
+    "Pest Control": "Pest Control",
+    "Irrigation Systems": "Irrigation Systems",
+    "Organic Farming": "Organic Farming",
+    "Livestock Management": "Livestock Management",
+    "Horticulture": "Horticulture",
+    "Agricultural Economics": "Agricultural Economics",
+   
+    "Start Time": "Start Time",
+    "End Time": "End Time",
+    "Experience Years": "Experience Years",
+    "Select Experience": "Select Experience",
+    "1 year": "1 year",
+    "2 years": "2 years",
+    "3 years": "3 years",
+    "4 years": "4 years",
+    "5 years": "5 years",
+    "More than 5 years": "More than 5 years",
+    
+    "An error occurred while saving your information.": "An error occurred while saving your information.",
+    
+    "Please select your specialization": "Please select your specialization",
+    "Please enter your consultation hours": "Please enter your consultation hours",
+    "Please select your years of experience": "Please select your years of experience",
+    
+    "error": "Error",
+    "Success": "Success",
+    "Information saved successfully!": "Information saved successfully!",
+    "All fields are required": "All fields are required",
+
+
+  "welcomeFarmer": "Welcome to AgroBoost",
+  "weatherCondition": "It's a {{condition}} day!",
+  "loading": "Loading...",
+  "welcomeExpert": "Welcome to AgroBoost Expert",
+  "welcomeBuyer": "Welcome to AgroBoost Buyer",
+  
+  "reload": "Reload",
+  "noData": "No Data",
+  
+  "pullToRefresh": "Pull to refresh",
+  "refreshing": "Refreshing...",
+  "weatherFetchError": "Weather Fetch Error",
+  "unableToFetchWeather": "Unable to fetch weather data. Please try again later.",
+
+  "Are you sure you want to logout?": "Are you sure you want to logout?",
+  "Confirm Logout": "Confirm Logout",
+  "Logout Successful": "Logout Successful",
+  "You have been logged out successfully": "You have been logged out successfully",
+  "OK": "OK",
+  "No": "No",
+
+  "years": "Years",
+
+  "activeConsultations": "Active Consultations",
+  "completedConsultations": "Completed Consultations",
+  "active":"Active",
+  "completed":"Completed",
+
+  "General Consultation": "General Consultation",
+  "Active Consultations": "Active Consultations",
+  
+  "Invalid email address": "Invalid email address",
+  "User not found": "User not found",
+  "Incorrect password": "Incorrect password",
+  "noInternetConnection": "No Internet Connection",
+  "Invalid credentials":"Invalid credentials",
+  "An unexpected error occurred": "An unexpected error occurred",
+  "Invalid user type": "Invalid user type",
+  "Sign-in successful": "Sign-in successful",
+  
+  "agriculturalExpert": "Agricultural Expert",
+  "pendingConsultations": "Pending Consultations",
+  "completedToday": "Completed Today",
+  "rating": "Rating",
+  "recentConsultations": "Recent Consultations",
+  "respond": "Respond",
+  "responded": "Responded",
+  "noConsultationsYet": "No consultations yet",
+  "justNow": "Just now",
+  "hoursAgo": "hours ago",
+  "consultationDetails": "Consultation Details",
+  "farmerQuery": "Farmer Query",
+  "yourResponse": "Your Response",
+  "send": "Send",
+  "cancel": "Cancel",
+  "responseSubmitted": "Response submitted successfully",
+  "errorSubmittingResponse": "Error submitting response. Please try again."
+  
+
+}
+
