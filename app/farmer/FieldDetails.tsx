@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -18,6 +18,8 @@ import { Button } from 'react-native-elements';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { db, my_auth } from '../../firebaseConfig';
+import { useFarmer } from '../hooks/fetch_farmer';
+
 
 import { useFields, FieldData } from '../hooks/useFields';
 import Toast from '../components/Toast';
@@ -37,6 +39,8 @@ const FieldDetails = () => {
   const [showForm, setShowForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState<number | null>(null);
+  const { farmerData , loading: farmerLoading} = useFarmer();
+
   const [toast, setToast] = useState({
     visible: false,
     message: '',
@@ -51,8 +55,52 @@ const FieldDetails = () => {
     longitude: null,
   }]);
 
+  // Add new state for date inputs
+  const [dateInputs, setDateInputs] = useState<{ day: string; month: string; year: string }[]>([{
+    day: '',
+    month: '',
+    year: ''
+  }]);
+
+  // Update dateInputs when formFields change
+  useEffect(() => {
+    console.log("Farmer Data",farmerData);
+    setDateInputs(formFields.map(field => ({
+      day: field.sowingDate.getDate().toString(),
+      month: (field.sowingDate.getMonth() + 1).toString(),
+      year: field.sowingDate.getFullYear().toString()
+
+    })));
+  }, [formFields.length]);
+
+  useEffect(() => {
+    console.log('Farmer Data:', farmerData);
+  }, [farmerData]);
+
+  const updateDateField = (index: number, field: 'day' | 'month' | 'year', value: string) => {
+    const newDateInputs = [...dateInputs];
+    newDateInputs[index] = { ...newDateInputs[index], [field]: value };
+    setDateInputs(newDateInputs);
+
+    // Only update the actual date if all fields have valid numbers
+    const { day, month, year } = newDateInputs[index];
+    if (day && month && year) {
+      const dayNum = parseInt(day);
+      const monthNum = parseInt(month);
+      const yearNum = parseInt(year);
+      
+      if (!isNaN(dayNum) && !isNaN(monthNum) && !isNaN(yearNum)) {
+        const newDate = new Date(formFields[index].sowingDate);
+        newDate.setDate(Math.min(Math.max(1, dayNum), 31));
+        newDate.setMonth(Math.min(Math.max(0, monthNum - 1), 11));
+        newDate.setFullYear(Math.max(2000, yearNum));
+        updateFieldForm(index, 'sowingDate', newDate);
+      }
+    }
+  };
+
   const cropTypes = ['Wheat', 'Rice', 'Corn', 'Soybean', 'Cotton', 'Sugarcane', 'Other'];
-  const soilTypes = ['Loamy', 'Sandy', 'Clay', 'Silt', 'Peaty', 'Chalky', 'Other'];
+  const soilTypes = ['Loam', 'Clay loam'];
 
   const handleLocationPermission = async (index: number) => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -285,18 +333,34 @@ const FieldDetails = () => {
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>{t('fieldDetails.sowingDate')}</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={field.sowingDate.toLocaleDateString()}
-                    onChangeText={(text) => {
-                      // Simple date validation could be added here
-                      const date = new Date(text);
-                      if (!isNaN(date.getTime())) {
-                        updateFieldForm(index, 'sowingDate', date);
-                      }
-                    }}
-                    placeholder="MM/DD/YYYY"
-                  />
+                  <View style={styles.dateInputContainer}>
+                    <TextInput
+                      style={[styles.dateInput, styles.dateInputDay]}
+                      placeholder="DD"
+                      keyboardType="numeric"
+                      maxLength={2}
+                      value={dateInputs[index].day}
+                      onChangeText={(text) => updateDateField(index, 'day', text)}
+                    />
+                    <Text style={styles.dateSeparator}>/</Text>
+                    <TextInput
+                      style={[styles.dateInput, styles.dateInputMonth]}
+                      placeholder="MM"
+                      keyboardType="numeric"
+                      maxLength={2}
+                      value={dateInputs[index].month}
+                      onChangeText={(text) => updateDateField(index, 'month', text)}
+                    />
+                    <Text style={styles.dateSeparator}>/</Text>
+                    <TextInput
+                      style={[styles.dateInput, styles.dateInputYear]}
+                      placeholder="YYYY"
+                      keyboardType="numeric"
+                      maxLength={4}
+                      value={dateInputs[index].year}
+                      onChangeText={(text) => updateDateField(index, 'year', text)}
+                    />
+                  </View>
                 </View>
 
                 <View style={styles.inputGroup}>
@@ -583,19 +647,34 @@ const styles = StyleSheet.create({
   addAnotherButtonContainer: {
     marginTop: 10,
   },
-  dateButton: {
+  dateInputContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#DDDDDD',
     borderRadius: 8,
-    padding: 12,
+    backgroundColor: '#FFFFFF',
+    padding: 8,
+  },
+  dateInput: {
+    fontSize: 16,
+    textAlign: 'center',
+    padding: 8,
     backgroundColor: '#FFFFFF',
   },
-  dateButtonText: {
+  dateInputDay: {
+    width: 50,
+  },
+  dateInputMonth: {
+    width: 50,
+  },
+  dateInputYear: {
+    width: 70,
+  },
+  dateSeparator: {
     fontSize: 16,
-    color: '#333333',
+    color: '#666666',
+    marginHorizontal: 5,
   },
 });
 

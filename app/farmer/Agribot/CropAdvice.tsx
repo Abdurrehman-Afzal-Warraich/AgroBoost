@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, I18nManager } from "react-native"
 import { useTranslation } from "react-i18next"
@@ -14,11 +12,6 @@ interface FormData {
   soilType: string
   issue: string
   selectedQuestions: string[]
-}
-
-interface AdviceResponse {
-  question: string
-  options: string[]
 }
 
 const CropAdvice = () => {
@@ -37,7 +30,9 @@ const CropAdvice = () => {
   const [toastVisible, setToastVisible] = useState(false)
   const [toastMessage, setToastMessage] = useState("")
   const [toastType, setToastType] = useState<"success" | "error" | "info">("error")
-  const [adviceResponse, setAdviceResponse] = useState<AdviceResponse[]>([])
+  
+  // Replace mock response with actual API response
+  const [apiRecommendations, setApiRecommendations] = useState<string[]>([])
 
   const isRTL = i18n.language === "ur"
 
@@ -100,6 +95,11 @@ const CropAdvice = () => {
       t("cropAdvice.questions.yield.comparison"),
       t("cropAdvice.questions.yield.fruitSize"),
       t("cropAdvice.questions.yield.pestDamage"),
+    ],
+    pest: [
+      "How to control pests?",
+      "What types of pests affect this crop?",
+      "Are there natural pest control methods?",
     ],
   }
 
@@ -169,103 +169,36 @@ const CropAdvice = () => {
 
     setLoading(true)
     try {
-      // Prepare data for backend
+      // Prepare data for backend API
       const requestData = {
-        cropType: formData.cropType,
-        growthStage: formData.growthStage,
-        soilType: formData.soilType,
+        crop_type: formData.cropType,
+        growth_stage: formData.growthStage,
+        soil_type: formData.soilType,
         issue: formData.issue,
-        questions: formData.selectedQuestions,
         language: i18n.language,
+        selected_question: formData.selectedQuestions[0] || ""  // Taking first question for simplicity
       }
 
       console.log("Sending data to backend:", requestData)
 
-      // Simulate API call with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // API call to backend
+      const response = await fetch('http://192.168.1.10:8000/recommendations/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      })
 
-      // Generate mock response based on the issue
-      let mockResponse: AdviceResponse[] = []
-
-      if (formData.issue === "nutrient") {
-        mockResponse = [
-          {
-            question: t("cropAdvice.responses.nutrient.title"),
-            options: [
-              t("cropAdvice.responses.nutrient.options.applyFertilizer"),
-              t("cropAdvice.responses.nutrient.options.soilTest"),
-              t("cropAdvice.responses.nutrient.options.foliarSpray"),
-            ],
-          },
-          {
-            question: t("cropAdvice.responses.nutrient.preventionTitle"),
-            options: [
-              t("cropAdvice.responses.nutrient.prevention.regularTesting"),
-              t("cropAdvice.responses.nutrient.prevention.organicMatter"),
-              t("cropAdvice.responses.nutrient.prevention.balancedNutrition"),
-            ],
-          },
-        ]
-      } else if (formData.issue === "water") {
-        mockResponse = [
-          {
-            question: t("cropAdvice.responses.water.title"),
-            options: [
-              t("cropAdvice.responses.water.options.adjustIrrigation"),
-              t("cropAdvice.responses.water.options.improveDrainage"),
-              t("cropAdvice.responses.water.options.mulching"),
-            ],
-          },
-          {
-            question: t("cropAdvice.responses.water.preventionTitle"),
-            options: [
-              t("cropAdvice.responses.water.prevention.scheduledIrrigation"),
-              t("cropAdvice.responses.water.prevention.rainwaterHarvesting"),
-              t("cropAdvice.responses.water.prevention.droughtResistant"),
-            ],
-          },
-        ]
-      } else if (formData.issue === "growth") {
-        mockResponse = [
-          {
-            question: t("cropAdvice.responses.growth.title"),
-            options: [
-              t("cropAdvice.responses.growth.options.checkRoots"),
-              t("cropAdvice.responses.growth.options.pruneAffected"),
-              t("cropAdvice.responses.growth.options.growthStimulants"),
-            ],
-          },
-          {
-            question: t("cropAdvice.responses.growth.preventionTitle"),
-            options: [
-              t("cropAdvice.responses.growth.prevention.qualitySeeds"),
-              t("cropAdvice.responses.growth.prevention.properSpacing"),
-              t("cropAdvice.responses.growth.prevention.regularMonitoring"),
-            ],
-          },
-        ]
-      } else if (formData.issue === "yield") {
-        mockResponse = [
-          {
-            question: t("cropAdvice.responses.yield.title"),
-            options: [
-              t("cropAdvice.responses.yield.options.pollinationSupport"),
-              t("cropAdvice.responses.yield.options.thinFruits"),
-              t("cropAdvice.responses.yield.options.pestControl"),
-            ],
-          },
-          {
-            question: t("cropAdvice.responses.yield.preventionTitle"),
-            options: [
-              t("cropAdvice.responses.yield.prevention.cropRotation"),
-              t("cropAdvice.responses.yield.prevention.improvedVarieties"),
-              t("cropAdvice.responses.yield.prevention.optimalHarvesting"),
-            ],
-          },
-        ]
+      if (!response.ok) {
+        throw new Error(`API error with status: ${response.status}`)
       }
 
-      setAdviceResponse(mockResponse)
+      const data = await response.json()
+      console.log("API Response:", data)
+      
+      // Store the recommendations from API
+      setApiRecommendations(data)
       setShowResponse(true)
       showToast(t("cropAdvice.adviceGenerated"), "success")
     } catch (error) {
@@ -287,7 +220,28 @@ const CropAdvice = () => {
     })
     setFormErrors({})
     setSelectedAnswers([])
+    setApiRecommendations([])
     setShowResponse(false)
+  }
+
+  // Add this function before the renderAdviceResponse function
+  const formatRecommendation = (text: string) => {
+    // Check if the text starts with ** to format as a header
+    if (text.startsWith('**')) {
+      const titleEnd = text.indexOf(':**')
+      if (titleEnd !== -1) {
+        const title = text.substring(2, titleEnd)
+        const content = text.substring(titleEnd + 3)
+        return (
+          <View style={styles.recommendationContent}>
+            <Text style={styles.recommendationTitle}>{title}</Text>
+            <Text style={[styles.recommendationText, isRTL && styles.rtlText]}>{content}</Text>
+          </View>
+        )
+      }
+    }
+    // Default case: return the text as is
+    return <Text style={[styles.recommendationText, isRTL && styles.rtlText]}>{text}</Text>
   }
 
   // Render the advice response
@@ -299,49 +253,27 @@ const CropAdvice = () => {
         <View style={[styles.cropInfoItem, isRTL && styles.rtlContainer]}>
           <MaterialCommunityIcons name="sprout" size={20} color="#4CAF50" />
           <Text style={[styles.cropInfoText, isRTL && styles.rtlText]}>
-            {t("cropTypes." + formData.cropType)} • {t("growthStages." + formData.growthStage)}
+            {formData.cropType} • {formData.growthStage}
           </Text>
         </View>
         <View style={[styles.cropInfoItem, isRTL && styles.rtlContainer]}>
           <MaterialCommunityIcons name="terrain" size={20} color="#4CAF50" />
-          <Text style={[styles.cropInfoText, isRTL && styles.rtlText]}>{t("soilTypes." + formData.soilType)}</Text>
+          <Text style={[styles.cropInfoText, isRTL && styles.rtlText]}>{formData.soilType}</Text>
+        </View>
+        <View style={[styles.cropInfoItem, isRTL && styles.rtlContainer]}>
+          <MaterialCommunityIcons name="alert-circle-outline" size={20} color="#FFC107" />
+          <Text style={[styles.cropInfoText, isRTL && styles.rtlText]}>{formData.issue}</Text>
         </View>
       </View>
 
-      {adviceResponse.map((response, index) => (
-        <View key={index} style={styles.responseSection}>
-          <Text style={[styles.responseTitle, isRTL && styles.rtlText]}>{response.question}</Text>
-          <View style={styles.optionsContainer}>
-            {response.options.map((option, optIndex) => (
-              <TouchableOpacity
-                key={optIndex}
-                style={[
-                  styles.optionButton,
-                  selectedAnswers.includes(option) && styles.optionButtonSelected,
-                  isRTL && styles.rtlContainer,
-                ]}
-                onPress={() => handleAnswerSelect(option)}
-              >
-                <MaterialCommunityIcons
-                  name={selectedAnswers.includes(option) ? "check-circle" : "circle-outline"}
-                  size={20}
-                  color={selectedAnswers.includes(option) ? "#FFFFFF" : "#4CAF50"}
-                  style={isRTL ? { marginLeft: 10 } : { marginRight: 10 }}
-                />
-                <Text
-                  style={[
-                    styles.optionText,
-                    selectedAnswers.includes(option) && styles.optionTextSelected,
-                    isRTL && styles.rtlText,
-                  ]}
-                >
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
+      {/* Display API recommendations */}
+      <ScrollView style={styles.recommendationsContainer}>
+        {apiRecommendations.map((recommendation, index) => (
+          <View key={index} style={styles.recommendationItem}>
+            {formatRecommendation(recommendation)}
           </View>
-        </View>
-      ))}
+        ))}
+      </ScrollView>
 
       <View style={styles.buttonRow}>
         <Button
@@ -379,12 +311,12 @@ const CropAdvice = () => {
             dropdownIconColor="#4CAF50"
           >
             <Picker.Item label={t("cropAdvice.selectCrop")} value="" />
-            <Picker.Item label={t("cropTypes.wheat")} value="wheat" />
-            <Picker.Item label={t("cropTypes.rice")} value="rice" />
-            <Picker.Item label={t("cropTypes.cotton")} value="cotton" />
-            <Picker.Item label={t("cropTypes.sugarcane")} value="sugarcane" />
-            <Picker.Item label={t("cropTypes.maize")} value="maize" />
-            <Picker.Item label={t("cropTypes.vegetables")} value="vegetables" />
+            <Picker.Item label="Wheat" value="Wheat" />
+            <Picker.Item label="Rice" value="Rice" />
+            <Picker.Item label="Cotton" value="Cotton" />
+            <Picker.Item label="Sugarcane" value="Sugarcane" />
+            <Picker.Item label="Maize" value="Maize" />
+            <Picker.Item label="Vegetables" value="Vegetables" />
           </Picker>
         </View>
         {formErrors.cropType && <Text style={[styles.errorText, isRTL && styles.rtlText]}>{formErrors.cropType}</Text>}
@@ -401,12 +333,12 @@ const CropAdvice = () => {
             dropdownIconColor="#4CAF50"
           >
             <Picker.Item label={t("cropAdvice.selectGrowthStage")} value="" />
-            <Picker.Item label={t("growthStages.sowing")} value="sowing" />
-            <Picker.Item label={t("growthStages.germination")} value="germination" />
-            <Picker.Item label={t("growthStages.vegetative")} value="vegetative" />
-            <Picker.Item label={t("growthStages.flowering")} value="flowering" />
-            <Picker.Item label={t("growthStages.maturity")} value="maturity" />
-            <Picker.Item label={t("growthStages.harvesting")} value="harvesting" />
+            <Picker.Item label="Sowing" value="Sowing" />
+            <Picker.Item label="Germination" value="Germination" />
+            <Picker.Item label="Vegetative" value="Vegetative" />
+            <Picker.Item label="Flowering" value="Flowering" />
+            <Picker.Item label="Maturity" value="Maturity" />
+            <Picker.Item label="Harvesting" value="Harvesting" />
           </Picker>
         </View>
         {formErrors.growthStage && (
@@ -425,11 +357,11 @@ const CropAdvice = () => {
             dropdownIconColor="#4CAF50"
           >
             <Picker.Item label={t("cropAdvice.selectSoilType")} value="" />
-            <Picker.Item label={t("soilTypes.sandy")} value="sandy" />
-            <Picker.Item label={t("soilTypes.loamy")} value="loamy" />
-            <Picker.Item label={t("soilTypes.clayey")} value="clayey" />
-            <Picker.Item label={t("soilTypes.silty")} value="silty" />
-            <Picker.Item label={t("soilTypes.saline")} value="saline" />
+            <Picker.Item label="Sandy" value="Sandy" />
+            <Picker.Item label="Loamy" value="Loamy" />
+            <Picker.Item label="Clayey" value="Clayey" />
+            <Picker.Item label="Silty" value="Silty" />
+            <Picker.Item label="Saline" value="Saline" />
           </Picker>
         </View>
         {formErrors.soilType && <Text style={[styles.errorText, isRTL && styles.rtlText]}>{formErrors.soilType}</Text>}
@@ -446,10 +378,11 @@ const CropAdvice = () => {
             dropdownIconColor="#4CAF50"
           >
             <Picker.Item label={t("cropAdvice.selectIssue")} value="" />
-            <Picker.Item label={t("cropAdvice.issueOptions.nutrient")} value="nutrient" />
-            <Picker.Item label={t("cropAdvice.issueOptions.water")} value="water" />
-            <Picker.Item label={t("cropAdvice.issueOptions.growth")} value="growth" />
-            <Picker.Item label={t("cropAdvice.issueOptions.yield")} value="yield" />
+            <Picker.Item label="Nutrient Deficiency" value="nutrient" />
+            <Picker.Item label="Water Issues" value="water" />
+            <Picker.Item label="Growth Problems" value="growth" />
+            <Picker.Item label="Yield Issues" value="yield" />
+            <Picker.Item label="Pest Infestation" value="pest" />
           </Picker>
         </View>
         {formErrors.issue && <Text style={[styles.errorText, isRTL && styles.rtlText]}>{formErrors.issue}</Text>}
@@ -524,101 +457,85 @@ const CropAdvice = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#F8F9FA",
   },
   header: {
     padding: 20,
-    paddingTop: Platform.OS === "ios" ? 60 : 40,
-    backgroundColor: "#4CAF50",
+    paddingTop: 40,
+    backgroundColor: "#FFFFFF",
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: "#333333",
     textAlign: "center",
   },
   headerSubtitle: {
     fontSize: 16,
-    color: "#E8F5E9",
+    color: "#666666",
     textAlign: "center",
-    marginTop: 5,
+    marginTop: 8,
   },
   content: {
     flex: 1,
   },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 16,
   },
   formContainer: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 10,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "600",
     color: "#333333",
-    marginBottom: 20,
-    textAlign: "center",
+    marginBottom: 16,
   },
   formGroup: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   label: {
     fontSize: 16,
-    fontWeight: "bold",
     color: "#333333",
     marginBottom: 8,
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: "#DDDDDD",
+    borderColor: "#E0E0E0",
     borderRadius: 8,
     backgroundColor: "#FFFFFF",
-    overflow: "hidden",
   },
   picker: {
     height: 50,
-    width: "100%",
   },
   questionsContainer: {
-    borderWidth: 1,
-    borderColor: "#DDDDDD",
-    borderRadius: 8,
-    padding: 10,
-    backgroundColor: "#FFFFFF",
+    marginTop: 10,
   },
   questionButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F9FFF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 8,
     padding: 15,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "#4CAF50",
+    borderColor: "#E0E0E0",
   },
   questionButtonSelected: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#E8F5E9",
+    borderColor: "#4CAF50",
   },
   questionText: {
-    color: "#333333",
     fontSize: 16,
+    color: "#333333",
     flex: 1,
   },
   questionTextSelected: {
-    color: "#FFFFFF",
     fontWeight: "bold",
+    color: "#2E7D32",
   },
   buttonContainer: {
     marginTop: 20,
@@ -697,6 +614,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333333",
     marginLeft: 10,
+  },
+  recommendationsContainer: {
+    marginTop: 20,
+  },
+  recommendationItem: {
+    backgroundColor: "#F9FFF9",
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  recommendationContent: {
+    flex: 1,
+  },
+  recommendationTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#2E7D32",
+    marginBottom: 8,
+  },
+  recommendationText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#333333",
   },
   rtlText: {
     textAlign: "right",

@@ -16,6 +16,7 @@ export interface FieldData {
   longitude: number | null;
   createdAt: Date;
   userId: string;
+  currentRound: number;
 }
 
 export const useFields = () => {
@@ -71,6 +72,7 @@ export const useFields = () => {
         createdAt: Timestamp.now(),
         sowingDate: Timestamp.fromDate(fieldData.sowingDate),
         userId: user.uid,
+        currentRound: 0,
       });
 
       // Refresh fields after adding

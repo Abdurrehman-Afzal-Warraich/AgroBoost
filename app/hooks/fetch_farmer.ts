@@ -1,64 +1,51 @@
 // hooks/fetch_farmer.ts
 import { useState, useEffect, useCallback } from 'react';
-import { getDoc, doc } from 'firebase/firestore';
-import { db, my_auth } from '../../firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
+import { getAuth } from 'firebase/auth';
 
 interface FarmerData {
-  name: string;
-  email: string;
-  city: string;
-  address: string;
-  coins: number;
-  phoneNumber: string;
-  location: {
-    latitude: number;
-    longitude: number;
-  } | null;
+  name?: string;
+  phone?: string;
+  city?: string;
+  address?: string;
+  budget?: number;
+  // Add other fields as needed
 }
 
 export const useFarmer = () => {
   const [farmerData, setFarmerData] = useState<FarmerData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchFarmerData = useCallback(async () => {
-    const currentUser = my_auth.currentUser;
-    if (!currentUser) {
-      setError('User not authenticated');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const farmerRef = doc(db, 'farmer', currentUser.uid);
-      const farmerSnap = await getDoc(farmerRef);
-
-      if (farmerSnap.exists()) {
-        const data = farmerSnap.data() as FarmerData;
-        // Only update state if data has actually changed
-        if (JSON.stringify(data) !== JSON.stringify(farmerData)) {
-          setFarmerData(data);
-        }
-      } else {
-        setFarmerData(null);
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) {
+        setLoading(false);
+        return;
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch farmer data');
+
+      const farmerDoc = await getDoc(doc(db, "farmer", user.uid));
+      if (farmerDoc.exists()) {
+        const data = farmerDoc.data() as FarmerData;
+        setFarmerData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching farmer data:", error);
     } finally {
       setLoading(false);
     }
-  }, [farmerData]); // Add farmerData as dependency to prevent unnecessary state updates
+  }, []);
 
-  const reloadFarmerData = useCallback(() => {
-    setLoading(true);
+  useEffect(() => {
     fetchFarmerData();
   }, [fetchFarmerData]);
 
-  useEffect(() => {
-    if (!farmerData) {
-      fetchFarmerData();
-    }
+  const reloadFarmerData = useCallback(async () => {
+    setLoading(true);
+    await fetchFarmerData();
   }, [fetchFarmerData]);
 
-  return { farmerData, loading, error, reloadFarmerData };
+  return { farmerData, loading, reloadFarmerData };
 };

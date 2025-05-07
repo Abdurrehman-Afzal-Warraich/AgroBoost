@@ -368,12 +368,12 @@
     "recommendationQuestions": "What advice do you need?",
     "selectQuestionsDescription": "Select the types of recommendations you would like to receive",
     "questions": {
-      "fertilizer": "Do you want fertilizer recommendations for next 2 weeks?",
-      "pestControl": "Would you like pest/disease control tips?",
+      "fertilization": "Do you want fertilizer recommendations for next 2 weeks?",
+      "pest_control": "Would you like pest/disease control tips?",
       "irrigation": "Need irrigation schedule suggestion based on current water status?",
-      "seasonalCare": "Do you want seasonal care tips for this crop?",
-      "growthStageTips": "Would you like to know the best practices for this growth stage?",
-      "weatherBasedAdvice": "Want weather-based spraying/fertilizer advice?"
+      "seasonal_care": "Do you want seasonal care tips for this crop?",
+      "growth_stage_tips": "Would you like to know the best practices for this growth stage?",
+      "weather_based_advice": "Want weather-based spraying/fertilizer advice?"
     },
     "getRecommendations": "Get Recommendations",
     "yourRecommendations": "Your Recommendations",
@@ -394,6 +394,7 @@
 
   "plantDiseases": {
     "title": "Plant Disease Identification",
+    "selectObservation": "Select your observation",
     "subtitle": "Upload a photo and get disease diagnosis",
     "cropType": "Crop Type",
     "selectCrop": "Select crop type",
@@ -705,8 +706,27 @@
   "send": "Send",
   "cancel": "Cancel",
   "responseSubmitted": "Response submitted successfully",
-  "errorSubmittingResponse": "Error submitting response. Please try again."
-  
+  "errorSubmittingResponse": "Error submitting response. Please try again.",
 
+
+  "farmerObservations": {
+    
+
+    "yellowingLeaves": "Leaves turning yellow, either uniformly or in patches. This could indicate nutrient deficiency, water stress, or disease."
+    ,
+    "blackSpots":  "Dark or black spots appearing on leaves, stems, or fruits. Often indicates fungal or bacterial infection."
+    ,
+    "wiltingPlant":  "Plant appears droopy or limp, leaves hanging down. Could be due to water stress, root problems, or disease."
+    ,
+    "stuntedGrowth": "Plant is smaller than expected for its age, with reduced leaf size and overall development."
+    ,
+    "powderyPatches": "White or gray powdery substance on leaves or stems. Typically indicates powdery mildew infection."
+    ,
+    "dryingLeaves":  "Leaves becoming dry, crispy, or brown at edges. May indicate water stress, disease, or nutrient issues."
+    ,
+    "fruitDiscoloration": "Abnormal colors or spots on fruits, including browning, blackening, or unusual patterns."
+    ,
+    "rootRot": "Roots appear brown or black, soft and mushy. Plant may be easily pulled from soil. Indicates fungal infection or waterlogging."
+  }
 }
 

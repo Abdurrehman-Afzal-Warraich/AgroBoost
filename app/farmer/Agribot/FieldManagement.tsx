@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Platform, I18nManager } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Platform, I18nManager, ActivityIndicator } from "react-native"
 import { useTranslation } from "react-i18next"
 import { Picker } from "@react-native-picker/picker"
 import { Button } from "react-native-elements"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import Toast from '../../components/Toast'
+import axios from 'axios'
 
 interface FormData {
   cropType: string
@@ -33,6 +34,9 @@ interface RecommendationQuestion {
   selected: boolean
 }
 
+// Base URL for API
+const API_BASE_URL = "http://192.168.1.10:8000" // Replace with your actual API base URL
+
 const FieldManagementScreen = () => {
   const { t, i18n } = useTranslation()
   const isRTL = i18n.language === "ur"
@@ -50,12 +54,12 @@ const FieldManagementScreen = () => {
   })
   const [formErrors, setFormErrors] = useState<FormErrors>({})
   const [recommendationQuestions, setRecommendationQuestions] = useState<RecommendationQuestion[]>([
-    { id: "fertilizer", selected: false },
-    { id: "pestControl", selected: false },
     { id: "irrigation", selected: false },
-    { id: "seasonalCare", selected: false },
-    { id: "growthStageTips", selected: false },
-    { id: "weatherBasedAdvice", selected: false },
+    { id: "pest_control", selected: false },
+    { id: "fertilization", selected: false },
+    { id: "seasonal_care", selected: false },
+    { id: "growth_stage_tips", selected: false },
+    { id: "weather_based_advice", selected: false },
   ])
   const [recommendations, setRecommendations] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
@@ -160,72 +164,117 @@ const FieldManagementScreen = () => {
     setStep(1)
   }
 
-  const generateRecommendations = async () => {
+  const formatRecommendation = (text: string) => {
+    // Check if the text starts with ** to format as a header
+    if (text.startsWith('**')) {
+      const titleEnd = text.indexOf(':**')
+      if (titleEnd !== -1) {
+        const title = text.substring(2, titleEnd)
+        const content = text.substring(titleEnd + 3)
+        return (
+          <View style={styles.recommendationContent}>
+            <Text style={styles.recommendationTitle}>{title}</Text>
+            <Text style={[styles.recommendationText, isRTL && styles.rtlText]}>{content}</Text>
+          </View>
+        )
+      } else {
+        // If no colon, look for the end of the bold marker
+        const boldEnd = text.indexOf('**', 2)
+        if (boldEnd !== -1) {
+          const title = text.substring(2, boldEnd)
+          const content = text.substring(boldEnd + 2)
+          return (
+            <View style={styles.recommendationContent}>
+              <Text style={styles.recommendationTitle}>{title}</Text>
+              <Text style={[styles.recommendationText, isRTL && styles.rtlText]}>{content}</Text>
+            </View>
+          )
+        }
+      }
+    }
     
+    // Default case: return the text as is
+    return <Text style={[styles.recommendationText, isRTL && styles.rtlText]}>{text}</Text>
+  }
 
+  const generateRecommendations = async () => {
     if (!validateStep2()) return
 
     setLoading(true)
+
     try {
-      console.log("Generating recommendations...")
-      console.log("Form Data for Field Management:", formData)
-      // In a real app, you would make an API call here
-      // For now, we'll simulate a delay and generate mock recommendations
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Get selected recommendation types
+      const selectedRecommendationTypes = recommendationQuestions
+        .filter((q) => q.selected)
+        .map((q) => q.id)
 
-      const selectedQuestions = recommendationQuestions.filter((q) => q.selected)
-      const mockRecommendations = selectedQuestions.map((q) => {
-        switch (q.id) {
-          case "fertilizer":
-            return `${t("fieldManagement.questions.fertilizer")} - ${
-              formData.cropType === "wheat"
-                ? "Apply NPK fertilizer in a ratio of 120:60:60 kg/ha."
-                : "Apply balanced fertilizer based on soil test results."
-            }`
-          case "pestControl":
-            return `${t("fieldManagement.questions.pestControl")} - ${
-              formData.observedProblems.includes("pest_attack")
-                ? "Implement integrated pest management with biological controls."
-                : "Monitor regularly for early pest detection."
-            }`
-          case "irrigation":
-            return `${t("fieldManagement.questions.irrigation")} - ${
-              formData.waterAvailability === "poor"
-                ? "Implement drip irrigation to maximize water efficiency."
-                : "Schedule irrigation based on crop water requirements."
-            }`
-          case "seasonalCare":
-            return `${t("fieldManagement.questions.seasonalCare")} - ${
-              formData.growthStage === "flowering"
-                ? "Ensure adequate pollination and protect from extreme weather."
-                : "Focus on weed control and soil moisture management."
-            }`
-          case "growthStageTips":
-            return `${t("fieldManagement.questions.growthStageTips")} - ${
-              formData.growthStage === "vegetative"
-                ? "Ensure adequate nitrogen supply for leaf development."
-                : "Focus on balanced nutrition for optimal yield."
-            }`
-          case "weatherBasedAdvice":
-            return `${t("fieldManagement.questions.weatherBasedAdvice")} - ${
-              formData.rainfallStatus === "heavy_rain"
-                ? "Ensure proper drainage to prevent waterlogging."
-                : "Consider supplemental irrigation if rainfall is insufficient."
-            }`
-          default:
-            return ""
-        }
-      })
+      // Prepare data for API request
+      const requestData = {
+        crop_type: formData.cropType,
+        growth_stage: formData.growthStage,
+        field_size: formData.fieldSize,
+        irrigation_type: formData.irrigationType,
+        soil_type: formData.soilType,
+        water_availability: mapWaterAvailability(formData.waterAvailability),
+        observed_problems: mapObservedProblems(formData.observedProblems),
+        rainfall_status: mapRainfallStatus(formData.rainfallStatus),
+        language: i18n.language,
+        recommendation_types: selectedRecommendationTypes
+      }
 
-      setRecommendations(mockRecommendations)
-      setShowRecommendations(true)
-      showToast("Recommendations generated successfully", "success")
+      console.log("Sending request to backend:", requestData)
+
+      // Make API call to your backend
+      const response = await axios.post(`${API_BASE_URL}/field-recommendations`, requestData)
+      
+      console.log("Response from backend:", response.data)
+
+      // Set recommendations from response
+      if (response.data && response.data.recommendations) {
+        setRecommendations(response.data.recommendations)
+        setShowRecommendations(true)
+        showToast(t("fieldManagement.recommendationsSuccess"), "success")
+      } else {
+        throw new Error("No recommendations received from server")
+      }
     } catch (error) {
       console.error("Error generating recommendations:", error)
       showToast(t("fieldManagement.errors.failedToGetRecommendations"), "error")
     } finally {
       setLoading(false)
     }
+  }
+
+  // Helper functions to map form data to API expected format
+  const mapWaterAvailability = (value: string) => {
+    const mapping = {
+      good: "High",
+      moderate: "Medium",
+      poor: "Low"
+    }
+    return mapping[value] || value
+  }
+
+  const mapObservedProblems = (problems: string[]) => {
+    const mapping = {
+      pest_attack: "Pests",
+      disease: "Disease",
+      weed_infestation: "Weeds",
+      nutrient_deficiency: "Nutrient deficiency",
+      water_stress: "Water stress",
+      soil_erosion: "Soil erosion"
+    }
+    
+    return problems.map(problem => mapping[problem] || problem)
+  }
+
+  const mapRainfallStatus = (status: string) => {
+    const mapping = {
+      heavy_rain: "Above normal",
+      light_rain: "Normal",
+      no_rain: "Below normal"
+    }
+    return mapping[status] || status
   }
 
   const handleStartOver = () => {
@@ -242,6 +291,7 @@ const FieldManagementScreen = () => {
     setRecommendationQuestions(recommendationQuestions.map((q) => ({ ...q, selected: false })))
     setFormErrors({})
     setShowRecommendations(false)
+    setRecommendations([])
     setStep(1)
   }
 
@@ -532,19 +582,24 @@ const FieldManagementScreen = () => {
         </View>
       </View>
 
-      <View style={styles.recommendationsContainer}>
-        {recommendations.map((recommendation, index) => (
-          <View key={index} style={[styles.recommendationItem, isRTL && styles.rtlContainer]}>
-            <MaterialCommunityIcons
-              name="check-circle"
-              size={24}
-              color="#4CAF50"
-              style={isRTL ? { marginLeft: 10 } : { marginRight: 10 }}
-            />
-            <Text style={[styles.recommendationText, isRTL && styles.rtlText]}>{recommendation}</Text>
-          </View>
-        ))}
-      </View>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4CAF50" />
+          <Text style={styles.loadingText}>{t("fieldManagement.loadingRecommendations")}</Text>
+        </View>
+      ) : (
+        <View style={styles.recommendationsContainer}>
+          {recommendations.length > 0 ? (
+            recommendations.map((recommendation, index) => (
+              <View key={index} style={styles.recommendationItem}>
+                {formatRecommendation(recommendation)}
+              </View>
+            ))
+          ) : (
+            <Text style={styles.noRecommendationsText}>{t("fieldManagement.noRecommendations")}</Text>
+          )}
+        </View>
+      )}
 
       <Button
         title={t("fieldManagement.startOver")}

@@ -1,16 +1,14 @@
 import type React from "react"
-import { StyleSheet, View, Text, ActivityIndicator } from "react-native"
-import { Button } from "react-native-elements"
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import type { YieldPredictionData } from "./types"
 
 interface PredictionControlsProps {
   predictionData: YieldPredictionData
   isPredicting: boolean
-  handlePrediction: () => Promise<void>
+  handlePrediction: () => void
   isRTL: boolean
   t: (key: string) => string
-  bypassWaitingPeriod?: boolean // Add this prop to control button state
 }
 
 const PredictionControls: React.FC<PredictionControlsProps> = ({
@@ -19,92 +17,77 @@ const PredictionControls: React.FC<PredictionControlsProps> = ({
   handlePrediction,
   isRTL,
   t,
-  bypassWaitingPeriod = false, // Default to false
 }) => {
-  // Determine if the button should be disabled
-  const isButtonDisabled = isPredicting || (!bypassWaitingPeriod && predictionData.daysRemaining > 0)
-
   return (
-    <View style={[styles.daysCard, styles.cardShadow]}>
-      <View style={[styles.daysRemaining, isRTL && styles.rtlRow]}>
-        <MaterialCommunityIcons name="calendar-clock" size={24} color="#3A8A41" />
-        <Text style={[styles.daysText, isRTL && styles.rtlText]}>
-          {t("Days Until Next Prediction")}: {predictionData.daysRemaining}
-          {bypassWaitingPeriod && <Text style={styles.testModeText}> ({t("Test Mode: Waiting Period Bypassed")})</Text>}
-        </Text>
+    <View style={[styles.predictionCard, styles.cardShadow]}>
+      <View style={[styles.cardHeader, isRTL && styles.rtlRow]}>
+        <MaterialCommunityIcons name="chart-line" size={24} color="#3A8A41" />
+        <Text style={[styles.cardTitle, isRTL && styles.rtlText]}>{t("Prediction Controls")}</Text>
       </View>
-      <Button
-        title={
-          isPredicting
-            ? t("Predicting...")
-            : !bypassWaitingPeriod && predictionData.daysRemaining > 0
-              ? t("Wait for days to complete")
-              : t("Update Prediction")
-        }
-        onPress={handlePrediction}
-        buttonStyle={[styles.predictButton, isButtonDisabled && !bypassWaitingPeriod && styles.disabledButton]}
-        titleStyle={[styles.buttonTitle, isRTL && styles.rtlText]}
-        containerStyle={styles.predictButtonContainer}
-        icon={
-          isPredicting ? (
-            <ActivityIndicator
-              color="#FFFFFF"
-              size="small"
-              style={{ marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}
-            />
-          ) : isRTL ? null : (
-            <MaterialCommunityIcons name="refresh" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
-          )
-        }
-        iconRight={isRTL}
-        iconPosition={isRTL ? "right" : "left"}
-        disabled={isButtonDisabled && !bypassWaitingPeriod}
-        loading={isPredicting}
-      />
+
+      <View style={styles.controlsContainer}>
+        <TouchableOpacity
+          style={[styles.predictButton, isPredicting && styles.predictButtonDisabled]}
+          onPress={handlePrediction}
+          disabled={isPredicting}
+        >
+          {isPredicting ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <>
+              <MaterialCommunityIcons name="chart-bell-curve" size={20} color="#FFFFFF" />
+              <Text style={styles.predictButtonText}>{t("Get Next Prediction")}</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  daysCard: {
+  predictionCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     marginHorizontal: 16,
     marginBottom: 16,
     padding: 16,
   },
-  daysRemaining: {
+  cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
     marginBottom: 12,
   },
-  daysText: {
+  cardTitle: {
     fontSize: 18,
+    fontWeight: "600",
     color: "#333333",
-    fontWeight: "500",
     marginLeft: 8,
     marginRight: 0,
   },
-  testModeText: {
-    fontSize: 14,
-    color: "#FF9800",
-    fontStyle: "italic",
+  controlsContainer: {
+    marginTop: 10,
+    backgroundColor: "#F9F9F9",
+    borderRadius: 8,
+    padding: 12,
   },
   predictButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#3A8A41",
     borderRadius: 8,
     paddingVertical: 12,
+    paddingHorizontal: 20,
   },
-  disabledButton: {
+  predictButtonDisabled: {
     backgroundColor: "#A0A0A0",
   },
-  predictButtonContainer: {
-    marginTop: 8,
-  },
-  buttonTitle: {
+  predictButtonText: {
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
+    marginLeft: 8,
   },
   rtlText: {
     textAlign: "right",
@@ -125,3 +108,4 @@ const styles = StyleSheet.create({
 })
 
 export default PredictionControls
+

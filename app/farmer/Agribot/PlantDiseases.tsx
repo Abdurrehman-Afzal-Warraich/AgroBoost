@@ -8,7 +8,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  TextInput,
   Modal,
   Platform,
   I18nManager,
@@ -22,7 +21,7 @@ import * as FileSystem from "expo-file-system"
 import Toast from "../../components/Toast"
 
 // Update API URL to use your machine's IP address instead of localhost
-const API_BASE_URL = "http://192.168.1.5:8000" // Replace with your machine's IP address
+const API_BASE_URL = "http://192.168.1.10:8000" // Replace with your machine's IP address
 
 interface FormData {
   cropType: string
@@ -162,34 +161,46 @@ const PlantDiseases = () => {
           const extension = fileName.split(".").pop()?.toLowerCase() || "jpg"
           const fileType = `image/${extension === "jpg" ? "jpeg" : extension}`
 
-          apiFormData.append("image", {
+          // Create blob from file
+          const imageBlob = {
             uri: formData.image,
             name: fileName,
             type: fileType,
-          } as any)
+          }
+
+          // Append image to form data
+          apiFormData.append("image", imageBlob as any)
         } else {
           throw new Error(t("plantDiseases.errors.imageNotFound"))
         }
       }
 
       // Add other form fields
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key !== "image" && value) {
-          apiFormData.append(key, value)
-        }
-      })
+      apiFormData.append("cropType", formData.cropType)
+      apiFormData.append("affectedPart", formData.affectedPart)
+      apiFormData.append("farmerObservation", formData.farmerObservation)
+      apiFormData.append("language", formData.language)
+      apiFormData.append("soilType", formData.soilType)
+      apiFormData.append("growthStage", formData.growthStage)
 
       console.log("Sending request to:", `${API_BASE_URL}/identify-disease`)
+      console.log("Form data:", {
+        cropType: formData.cropType,
+        affectedPart: formData.affectedPart,
+        farmerObservation: formData.farmerObservation,
+        language: formData.language,
+        soilType: formData.soilType,
+        growthStage: formData.growthStage,
+        image: formData.image ? "Image attached" : "No image"
+      })
 
       // Make the API call
-      // For now, we'll simulate a successful response
-      // In a real app, you would uncomment the fetch call below
-      /*
       const response = await fetch(`${API_BASE_URL}/identify-disease`, {
         method: 'POST',
         body: apiFormData,
         headers: {
           'Accept': 'application/json',
+          // Don't set Content-Type here - it will be set automatically with the correct boundary for multipart/form-data
         },
       });
 
@@ -199,51 +210,42 @@ const PlantDiseases = () => {
       }
 
       const result = await response.json();
-      */
-
-      // Simulate API response
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Mock result
-      const mockResult: DiseaseResult = {
-        disease_name: i18n.language === "ur" ? "پتی کا دھبہ" : "Leaf Spot Disease",
-        description:
-          i18n.language === "ur"
-            ? "یہ ایک عام فنگل بیماری ہے جو پتوں پر بھورے یا کالے دھبوں کی شکل میں ظاہر ہوتی ہے۔ یہ نمی والے حالات میں پھیلتی ہے اور فصل کی پیداوار کو کم کر سکتی ہے۔"
-            : "This is a common fungal disease that appears as brown or black spots on leaves. It thrives in humid conditions and can reduce crop yield if left untreated.",
-        disease_management: [
-          i18n.language === "ur" ? "متاثرہ پتوں کو ہٹا دیں اور تلف کر دیں" : "Remove and destroy affected leaves",
-          i18n.language === "ur"
-            ? "فنگسائیڈ سپرے کا استعمال کریں جیسے کاپر آکسی کلورائیڈ"
-            : "Apply fungicide spray such as copper oxychloride",
-          i18n.language === "ur" ? "پودوں کے درمیان مناسب فاصلہ رکھیں" : "Maintain proper spacing between plants",
-        ],
-        preventive_measures: [
-          i18n.language === "ur" ? "فصل کی گردش کا استعمال کریں" : "Use crop rotation",
-          i18n.language === "ur" ? "مزاحم اقسام لگائیں" : "Plant resistant varieties",
-          i18n.language === "ur" ? "اچھی نکاسی کو یقینی بنائیں" : "Ensure good drainage",
-          i18n.language === "ur" ? "متوازن کھاد کا استعمال کریں" : "Use balanced fertilization",
-        ],
-        local_context: [
-          i18n.language === "ur"
-            ? "پنجاب میں، یہ بیماری بارش کے موسم میں زیادہ عام ہے"
-            : "In Punjab, this disease is more common during the rainy season",
-          i18n.language === "ur"
-            ? "مقامی کسان نیم کے تیل کا سپرے بھی استعمال کرتے ہیں"
-            : "Local farmers also use neem oil spray",
-          i18n.language === "ur"
-            ? "اگلی فصل کے لیے بیج کو صحت مند پودوں سے لیں"
-            : "Source seeds from healthy plants for the next crop",
-        ],
-      }
-
-      setDiseaseResult(mockResult)
-      setResultModalVisible(true)
-      showToast(t("plantDiseases.diseaseIdentified"), "success")
+      console.log("API response:", result);
+      
+      setDiseaseResult(result);
+      setResultModalVisible(true);
+      showToast(t("plantDiseases.diseaseIdentified"), "success");
     } catch (error: unknown) {
       console.error("API Error:", error)
       const errorMessage = error instanceof Error ? error.message : t("plantDiseases.errors.unknownError")
       showToast(errorMessage, "error")
+      
+      // For development purposes, fallback to mock data on error
+      if (process.env.NODE_ENV === 'development') {
+        const mockResult: DiseaseResult = {
+          disease_name: "Early Blight",
+          description: "Early blight is a common fungal disease in tomatoes, caused by Alternaria solani. Symptoms include dark brown to black spots on leaves, stems, and fruits. It thrives in warm, humid conditions and can significantly reduce yields if left untreated.",
+          disease_management: [
+            "Apply Dithane M-45 (80 WP) at 2.5 g per liter of water, spraying thoroughly every 7-10 days.",
+            "Use Ridomil Gold MZ (68 WG) at 2 g per liter of water, alternating with Dithane M-45 for better results.",
+            "Remove and destroy infected plant debris immediately to reduce disease spread.",
+            "Ensure good air circulation by proper spacing of plants."
+          ],
+          preventive_measures: [
+            "Plant blight-resistant tomato varieties like 'Roma VF' or 'Pusa Ruby'.",
+            "Practice crop rotation, avoiding planting tomatoes in the same area for at least two years.",
+            "Maintain proper soil drainage to prevent excess moisture, which favors fungal growth.",
+            "Use disease-free seeds and seedlings."
+          ],
+          local_context: [
+            "Contact your local agriculture extension office for personalized advice and disease updates.",
+            "Use neem oil as a cost-effective alternative for early disease control.",
+            "Consider crop insurance schemes for yield protection against disease losses."
+          ]
+        }
+        setDiseaseResult(mockResult);
+        setResultModalVisible(true);
+      }
     } finally {
       setLoading(false)
     }
@@ -345,6 +347,19 @@ const PlantDiseases = () => {
     )
   }
 
+  // Farmer observation options
+  const farmerObservationOptions = [
+    { label: t("plantDiseases.selectObservation"), value: "" },
+    { label: t("farmerObservations.yellowingLeaves"), value: "yellowing_leaves" },
+    { label: t("farmerObservations.blackSpots"), value: "black_spots" },
+    { label: t("farmerObservations.wiltingPlant"), value: "wilting_plant" },
+    { label: t("farmerObservations.stuntedGrowth"), value: "stunted_growth" },
+    { label: t("farmerObservations.powderyPatches"), value: "powdery_patches" },
+    { label: t("farmerObservations.dryingLeaves"), value: "drying_leaves" },
+    { label: t("farmerObservations.fruitDiscoloration"), value: "fruit_discoloration" },
+    { label: t("farmerObservations.rootRot"), value: "root_rot" },
+  ]
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -370,6 +385,7 @@ const PlantDiseases = () => {
                 <Picker.Item label={t("cropTypes.cotton")} value="cotton" />
                 <Picker.Item label={t("cropTypes.sugarcane")} value="sugarcane" />
                 <Picker.Item label={t("cropTypes.maize")} value="maize" />
+                <Picker.Item label={t("cropTypes.tomato")} value="tomato" />
                 <Picker.Item label={t("cropTypes.vegetables")} value="vegetables" />
               </Picker>
             </View>
@@ -393,7 +409,7 @@ const PlantDiseases = () => {
                 <Picker.Item label={t("growthStages.germination")} value="germination" />
                 <Picker.Item label={t("growthStages.vegetative")} value="vegetative" />
                 <Picker.Item label={t("growthStages.flowering")} value="flowering" />
-                <Picker.Item label={t("growthStages.maturity")} value="maturity" />
+                <Picker.Item label={t("growthStages.mature")} value="mature" />
                 <Picker.Item label={t("growthStages.harvesting")} value="harvesting" />
               </Picker>
             </View>
@@ -449,23 +465,21 @@ const PlantDiseases = () => {
             )}
           </View>
 
-          {/* Farmer Observation */}
+          {/* Farmer Observation - Changed to dropdown */}
           <View style={styles.formGroup}>
             <Text style={[styles.label, isRTL && styles.rtlText]}>{t("plantDiseases.farmerObservation")}</Text>
-            <TextInput
-              style={[
-                styles.textInput,
-                formErrors.farmerObservation ? styles.inputError : null,
-                isRTL && styles.rtlText,
-              ]}
-              placeholder={t("plantDiseases.farmerObservationPlaceholder")}
-              value={formData.farmerObservation}
-              onChangeText={(text) => handleFieldDataChange("farmerObservation", text)}
-              multiline={true}
-              numberOfLines={4}
-              textAlignVertical="top"
-              textAlign={isRTL ? "right" : "left"}
-            />
+            <View style={[styles.pickerContainer, formErrors.farmerObservation ? styles.inputError : null]}>
+              <Picker
+                selectedValue={formData.farmerObservation}
+                onValueChange={(value) => handleFieldDataChange("farmerObservation", value)}
+                style={[styles.picker, isRTL && styles.rtlText]}
+                dropdownIconColor="#4CAF50"
+              >
+                {farmerObservationOptions.map((option) => (
+                  <Picker.Item key={option.value} label={option.label} value={option.value} />
+                ))}
+              </Picker>
+            </View>
             {formErrors.farmerObservation && (
               <Text style={[styles.errorText, isRTL && styles.rtlText]}>{formErrors.farmerObservation}</Text>
             )}
@@ -586,15 +600,6 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: "100%",
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: "#DDDDDD",
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: "#FFFFFF",
-    minHeight: 120,
-    fontSize: 16,
   },
   imageUploadButton: {
     borderWidth: 1,
