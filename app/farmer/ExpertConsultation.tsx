@@ -92,6 +92,7 @@ const ExpertConsultation = () => {
         params: {
           expertId: expert.id,
           expertName: expert.name,
+          farmerId: currentUser?.uid,
         },
       })
       return

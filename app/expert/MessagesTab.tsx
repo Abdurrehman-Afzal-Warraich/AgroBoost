@@ -149,6 +149,7 @@ const MessagesTab = () => {
           farmerId: request.farmerId,
           farmerName: farmers[request.farmerId]?.name || "Farmer",
           requestId: request.id,
+          expertId: currentUser?.uid,
           consultationId: consultationRef.id
         },
       })

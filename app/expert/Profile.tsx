@@ -5,6 +5,7 @@ import { useUser } from '../context/UserProvider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ProfilePicture from '../components/ProfilePicture';
 import { my_auth } from '../../firebaseConfig';
+
 import { useExpert } from './hooks/fetch_expert';
 
 const Profile = () => {
