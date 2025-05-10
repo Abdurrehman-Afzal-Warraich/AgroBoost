@@ -19,9 +19,10 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"
 import * as ImagePicker from "expo-image-picker"
 import * as FileSystem from "expo-file-system"
 import Toast from "../../components/Toast"
+import { FASTAPI_URL } from "@/app/utils/constants"
 
 // Update API URL to use your machine's IP address instead of localhost
-const API_BASE_URL = "http://192.168.1.10:8000" // Replace with your machine's IP address
+const API_BASE_URL = FASTAPI_URL // Replace with your machine's IP address
 
 interface FormData {
   cropType: string

@@ -5,6 +5,7 @@ import { Picker } from "@react-native-picker/picker"
 import { Button } from "react-native-elements"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import Toast from "../../components/Toast"
+import { FASTAPI_URL } from "@/app/utils/constants"
 
 interface FormData {
   cropType: string
@@ -182,7 +183,7 @@ const CropAdvice = () => {
       console.log("Sending data to backend:", requestData)
 
       // API call to backend
-      const response = await fetch('http://192.168.1.10:8000/recommendations/', {
+      const response = await fetch(`${FASTAPI_URL}/recommendation/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

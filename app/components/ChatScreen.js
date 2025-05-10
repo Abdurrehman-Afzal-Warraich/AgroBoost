@@ -299,9 +299,14 @@ const ChatScreenComponent = ({ currentUserId, otherUserId, userType }) => {
       return
     }
 
-    console.log("Sending image data:", imageData)
+    console.log("Sending image data:", {
+      uri: imageData.uri,
+      type: imageData.type,
+      name: imageData.name,
+      fileSize: imageData.file?.size,
+    })
 
-    // Create a temporary message
+    // Create a temporary message for UI feedback
     const tempId = Date.now().toString()
     const tempMessage = {
       _id: tempId,
@@ -313,29 +318,35 @@ const ChatScreenComponent = ({ currentUserId, otherUserId, userType }) => {
       pending: true,
     }
 
+    // Add to local state
     setMessages((prevMessages) => [...prevMessages, tempMessage])
+
+    // Hide image picker
     setShowImagePicker(false)
 
     try {
-      // Create FormData object
+      // Create form data for file upload
       const formData = new FormData()
 
       if (Platform.OS === "web" && imageData.file) {
-        // Web - use the File object directly
+        // For web, use the actual File object
+        console.log("Appending web file:", {
+          name: imageData.file.name,
+          type: imageData.file.type,
+          size: imageData.file.size,
+        })
         formData.append("file", imageData.file)
       } else {
-        // Android/iOS - create a file-like object
-        // Don't modify the URI - use it exactly as provided by the image picker
+        // For mobile platforms
         const fileUri = imageData.uri
 
-        // Log the exact file information we're sending
-        console.log("Creating file object with:", {
+        console.log("Appending mobile file:", {
           uri: fileUri,
-          type: imageData.type || "image/jpeg",
-          name: imageData.name || `image-${Date.now()}.jpg`,
+          type: imageData.type,
+          name: imageData.name,
         })
 
-        // Create a file-like object that works with FormData on React Native
+        // Create a file object for the image
         formData.append("file", {
           uri: fileUri,
           type: imageData.type || "image/jpeg",
@@ -343,67 +354,58 @@ const ChatScreenComponent = ({ currentUserId, otherUserId, userType }) => {
         })
       }
 
-      // Add other required fields
+      // Add other required data
       formData.append("senderId", currentUserId)
       formData.append("receiverId", otherUserId)
       formData.append("messageType", "image")
 
-      console.log("Sending FormData with image")
+      console.log("Sending form data to:", `${SERVER_URL}/api/messages/media`)
 
-      // Set proper headers based on platform
-      const headers = {}
-      if (Platform.OS !== "web") {
-        // For React Native, we need to set this header
-        headers["Content-Type"] = "multipart/form-data"
-      }
-      // Always accept JSON response
-      headers["Accept"] = "application/json"
-
-      // Log the server URL we're sending to
-      console.log("Sending to URL:", `${SERVER_URL}/api/messages/media`)
-
-      // Add timeout and better error handling
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
-
+      // Send to server
       const response = await fetch(`${SERVER_URL}/api/messages/media`, {
         method: "POST",
         body: formData,
-        headers: headers,
-        signal: controller.signal,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "multipart/form-data",
+        },
       })
-
-      clearTimeout(timeoutId)
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error("Server error response:", errorText)
-        throw new Error(`Failed to send image: ${response.status} - ${errorText}`)
+        console.error("Server response:", errorText)
+        throw new Error(`Failed to send image: ${response.status}`)
       }
 
       const savedMessage = await response.json()
-      console.log("Image message saved successfully:", savedMessage)
+      console.log("Saved message:", savedMessage)
 
+      // Update message in state
       setMessages((prevMessages) =>
         prevMessages.map((msg) => (msg._id === tempId ? { ...savedMessage, pending: false } : msg)),
       )
 
+      // Notify other user via socket
       socket.emit("sendMessage", {
         senderId: currentUserId,
         receiverId: otherUserId,
         message: savedMessage.content,
         messageType: "image",
       })
+
+      // Clean up object URL if it was created (web platform)
+      if (Platform.OS === "web" && imageData.uri.startsWith("blob:")) {
+        URL.revokeObjectURL(imageData.uri)
+      }
     } catch (error) {
       console.error("Error sending image:", error)
-      // Log more details about the error
-      if (error.message) console.error("Error message:", error.message)
-      if (error.stack) console.error("Error stack:", error.stack)
 
+      // Mark message as failed
       setMessages((prevMessages) =>
         prevMessages.map((msg) => (msg._id === tempId ? { ...msg, failed: true, pending: false } : msg)),
       )
-      Alert.alert("Error", "Failed to send image. Please check your network connection and try again.")
+
+      Alert.alert("Error", "Failed to send image. Please try again.")
     }
   }
 
@@ -415,6 +417,7 @@ const ChatScreenComponent = ({ currentUserId, otherUserId, userType }) => {
 
     console.log("Sending audio data:", audioData)
 
+    // Create a temporary message for UI feedback
     const tempId = Date.now().toString()
     const tempMessage = {
       _id: tempId,
@@ -426,78 +429,78 @@ const ChatScreenComponent = ({ currentUserId, otherUserId, userType }) => {
       pending: true,
     }
 
+    // Add to local state
     setMessages((prevMessages) => [...prevMessages, tempMessage])
+
+    // Hide audio recorder
     setShowAudioRecorder(false)
 
     try {
-      // Create FormData object
+      // Create form data for file upload
       const formData = new FormData()
 
       if (Platform.OS === "web" && audioData.file) {
-        // Web - use the File object directly
+        // For web, use the File object directly
         formData.append("file", audioData.file)
       } else {
-        // Android/iOS - create a file-like object
-        // Don't modify the URI - use it exactly as provided by the audio recorder
-        const fileUri = audioData.uri
+        // For mobile platforms
+        const fileUri = Platform.OS === "android" ? audioData.uri : audioData.uri.replace("file://", "")
 
-        console.log("Creating audio file object with:", {
-          uri: fileUri,
-          type: audioData.type || "audio/m4a",
-          name: audioData.name || `audio-${Date.now()}.m4a`,
-        })
-
-        // Create a file-like object that works with FormData on React Native
         formData.append("file", {
           uri: fileUri,
           type: audioData.type || "audio/m4a",
-          name: audioData.name || `audio-${Date.now()}.m4a`,
+          name: "audio.m4a",
         })
       }
 
-      // Add other required fields
+      // Add other data
       formData.append("senderId", currentUserId)
       formData.append("receiverId", otherUserId)
       formData.append("messageType", "audio")
 
-      console.log("Sending FormData with audio")
-      console.log("Sending to URL:", `${SERVER_URL}/api/messages/media`)
+      console.log("Sending form data:", {
+        senderId: currentUserId,
+        receiverId: otherUserId,
+        messageType: "audio",
+        fileInfo:
+          Platform.OS === "web"
+            ? {
+                type: audioData.file?.type,
+                size: audioData.file?.size,
+              }
+            : {
+                uri: audioData.uri,
+                type: audioData.type,
+              },
+      })
 
-      // Set proper headers based on platform
-      const headers = {}
-      if (Platform.OS !== "web") {
-        // For React Native, we need to set this header
-        headers["Content-Type"] = "multipart/form-data"
-      }
-      // Always accept JSON response
-      headers["Accept"] = "application/json"
-
-      // Add timeout and better error handling
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
-
+      // Send to server
       const response = await fetch(`${SERVER_URL}/api/messages/media`, {
         method: "POST",
         body: formData,
-        headers: headers,
-        signal: controller.signal,
+        headers:
+          Platform.OS === "web"
+            ? undefined
+            : {
+                "Content-Type": "multipart/form-data",
+              },
       })
-
-      clearTimeout(timeoutId)
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error("Server error response:", errorText)
-        throw new Error(`Failed to send audio: ${response.status} - ${errorText}`)
+        console.error("Server response:", errorText)
+        throw new Error(`Failed to send audio: ${response.status}`)
       }
 
       const savedMessage = await response.json()
-      console.log("Audio message saved successfully:", savedMessage)
+      console.log("Saved message:", savedMessage)
 
+      // Update message in state
       setMessages((prevMessages) =>
         prevMessages.map((msg) => (msg._id === tempId ? { ...savedMessage, pending: false } : msg)),
       )
 
+      // Notify other user via socket
       socket.emit("sendMessage", {
         senderId: currentUserId,
         receiverId: otherUserId,
@@ -506,14 +509,13 @@ const ChatScreenComponent = ({ currentUserId, otherUserId, userType }) => {
       })
     } catch (error) {
       console.error("Error sending audio:", error)
-      // Log more details about the error
-      if (error.message) console.error("Error message:", error.message)
-      if (error.stack) console.error("Error stack:", error.stack)
 
+      // Mark message as failed
       setMessages((prevMessages) =>
         prevMessages.map((msg) => (msg._id === tempId ? { ...msg, failed: true, pending: false } : msg)),
       )
-      Alert.alert("Error", "Failed to send audio. Please check your network connection and try again.")
+
+      Alert.alert("Error", "Failed to send audio. Please try again.")
     }
   }
 

@@ -60,7 +60,7 @@ const ImagePicker = ({ onImageSelected, onCancel }) => {
         }
 
         const result = await ImagePickerExpo.launchImageLibraryAsync({
-          mediaTypes: ImagePickerExpo.MediaType.Images,
+          mediaTypes: ImagePickerExpo.MediaTypeOptions ? ImagePickerExpo.MediaTypeOptions.Images : ImagePickerExpo.MediaType.Images,
           allowsEditing: true,
           aspect: [4, 3],
           quality: 0.8,
@@ -80,14 +80,8 @@ const ImagePicker = ({ onImageSelected, onCancel }) => {
           setImage(selectedImage.uri)
           onImageSelected({
             uri: selectedImage.uri,
-            type: selectedImage.type || "image/jpeg",
+            type: "image/jpeg", // Force image/jpeg for mobile uploads
             name: fileName,
-            // Add these properties for Android compatibility
-            fileSize: selectedImage.fileSize,
-            width: selectedImage.width,
-            height: selectedImage.height,
-            // Add this to ensure the file is properly identified
-            isFile: true,
           })
         }
       }
@@ -117,7 +111,7 @@ const ImagePicker = ({ onImageSelected, onCancel }) => {
       confirmed: true,
       // Keep any previously selected file data
       file: image.file,
-      type: image.type || "image/jpeg",
+      type: "image/jpeg", // Force image/jpeg type
       name: image.name || `image-${Date.now()}.jpg`,
     })
   }
@@ -154,7 +148,6 @@ const ImagePicker = ({ onImageSelected, onCancel }) => {
 }
 
 const styles = StyleSheet.create({
-  // Styles remain the same
   container: {
     backgroundColor: "#F5F5F5",
     borderTopWidth: 1,

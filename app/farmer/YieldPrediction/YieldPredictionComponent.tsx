@@ -17,11 +17,11 @@ import PredictionHistory from "./PredictionHistory"
 import MapSection from "./MapSection"
 import HeaderSection from "./HeaderSection"
 import { type YieldPredictionData, type BackendPredictionRequest, type BackendPredictionResponse, type CityType, CITY_MAPPING, ensureCityType, ensureDate } from "./types"
-
+import { FASTAPI_URL } from "@/app/utils/constants"
 const fetchPredictionFromBackend = async (data: BackendPredictionRequest): Promise<number> => {
   console.log("Sending prediction request to backend with data:", data);
 
-  const response = await fetch('http://192.168.1.10:8000/predict', {
+  const response = await fetch(`${FASTAPI_URL}/predict`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

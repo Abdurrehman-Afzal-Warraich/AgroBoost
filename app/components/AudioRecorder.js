@@ -71,6 +71,7 @@ const AudioRecorder = ({ onAudioRecorded, onCancel }) => {
       console.log("Starting recording on platform:", Platform.OS)
 
       if (Platform.OS === "web") {
+        // Web implementation remains the same
         try {
           console.log("Requesting microphone permission...")
           audioStream.current = await navigator.mediaDevices.getUserMedia({
@@ -82,32 +83,41 @@ const AudioRecorder = ({ onAudioRecorded, onCancel }) => {
           })
           console.log("Microphone permission granted")
 
-          // Create MediaRecorder
-          const options = { mimeType: "audio/webm;codecs=opus" }
-          mediaRecorder.current = new MediaRecorder(audioStream.current, options)
+          const mimeType = "audio/webm;codecs=opus"
+          if (!MediaRecorder.isTypeSupported(mimeType)) {
+            console.warn("WebM not supported, falling back to default codec")
+            mediaRecorder.current = new MediaRecorder(audioStream.current)
+          } else {
+            mediaRecorder.current = new MediaRecorder(audioStream.current, {
+              mimeType: mimeType,
+            })
+          }
 
-          // Set up event handlers
+          console.log("MediaRecorder created")
+          audioChunks.current = []
+
           mediaRecorder.current.ondataavailable = (event) => {
+            console.log("Data available:", event.data.size, "bytes")
             if (event.data.size > 0) {
               audioChunks.current.push(event.data)
             }
           }
 
           mediaRecorder.current.onstop = () => {
-            const blob = new Blob(audioChunks.current, { type: "audio/webm;codecs=opus" })
-            const audioUrl = URL.createObjectURL(blob)
+            console.log("Recording stopped, creating blob")
+            const audioBlob = new Blob(audioChunks.current, {
+              type: mediaRecorder.current.mimeType,
+            })
+            console.log("Blob created:", audioBlob.size, "bytes")
+            const audioUrl = URL.createObjectURL(audioBlob)
+            console.log("Blob URL created:", audioUrl)
             setAudioUri(audioUrl)
             setRecordingStatus("stopped")
-
-            // Create audio element for playback
-            if (!webAudioElement.current) {
-              webAudioElement.current = new Audio()
-            }
           }
 
-          // Start recording
-          audioChunks.current = []
-          mediaRecorder.current.start()
+          // Request data every second
+          mediaRecorder.current.start(1000)
+          console.log("Recording started")
           setRecordingStatus("recording")
           setDuration(0)
 
@@ -116,63 +126,46 @@ const AudioRecorder = ({ onAudioRecorded, onCancel }) => {
             const elapsed = Math.floor((Date.now() - startTime) / 1000)
             setDuration(elapsed)
           }, 1000)
-        } catch (error) {
-          console.error("Error accessing microphone:", error)
-          Alert.alert("Error", "Failed to access microphone")
+
           setLoading(false)
-          return
+        } catch (error) {
+          console.error("Error in web recording:", error)
+          Alert.alert("Error", `Recording failed: ${error.message}`)
+          setLoading(false)
         }
       } else {
         console.log("Starting mobile recording...")
-        const { status } = await Audio.requestPermissionsAsync()
-        console.log("Permission status:", status)
-        if (status !== "granted") {
-          Alert.alert("Permission needed", "Please grant microphone permissions to record audio.")
-          setLoading(false)
-          return
-        }
-
-        console.log("Setting audio mode...")
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-          // Fix for invalid interruptionModeAndroid value
-          interruptionModeAndroid: Audio.InterruptionModeAndroid.DoNotMix,
-          shouldDuckAndroid: true,
-          playThroughEarpieceAndroid: false,
-        })
-
-        if (timer.current) {
-          clearInterval(timer.current)
-        }
-
-        console.log("Creating recording...")
-        const recordingOptions = {
-          android: {
-            extension: ".m4a",
-            outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
-            audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
-            sampleRate: 44100,
-            numberOfChannels: 2,
-            bitRate: 128000,
-          },
-          ios: {
-            extension: ".m4a",
-            audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
-            sampleRate: 44100,
-            numberOfChannels: 2,
-            bitRate: 128000,
-            linearPCMBitDepth: 16,
-            linearPCMIsBigEndian: false,
-            linearPCMIsFloat: false,
-          },
-        }
-
-        const newRecording = new Audio.Recording()
         try {
-          await newRecording.prepareToRecordAsync(recordingOptions)
-          await newRecording.startAsync()
-          setRecording(newRecording)
+          const { status } = await Audio.requestPermissionsAsync()
+          console.log("Permission status:", status)
+          if (status !== "granted") {
+            Alert.alert("Permission needed", "Permission to access microphone is required!")
+            setLoading(false)
+            return
+          }
+
+          console.log("Setting audio mode...")
+          await Audio.setAudioModeAsync({
+            allowsRecordingIOS: true,
+            playsInSilentModeIOS: true,
+            staysActiveInBackground: false,
+            interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX || 1,
+            interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX || 1,
+            shouldDuckAndroid: true,
+            playThroughEarpieceAndroid: false,
+          })
+
+          if (timer.current) {
+            clearInterval(timer.current)
+          }
+
+          console.log("Creating recording with preset low quality...")
+
+          // Use the preset low quality options directly from Audio
+          const { recording } = await Audio.Recording.createAsync(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
+
+          console.log("Recording created successfully")
+          setRecording(recording)
           setRecordingStatus("recording")
           setDuration(0)
 
@@ -181,13 +174,14 @@ const AudioRecorder = ({ onAudioRecorded, onCancel }) => {
             const elapsed = Math.floor((Date.now() - startTime) / 1000)
             setDuration(elapsed)
           }, 1000)
+
+          setLoading(false)
         } catch (error) {
-          console.error("Error starting recording:", error)
-          Alert.alert("Error", "Failed to start recording. Please try again.")
+          console.error("Failed to start recording:", error)
+          setLoading(false)
+          Alert.alert("Error", `Failed to start recording: ${error.message}. Please try again.`)
         }
       }
-
-      setLoading(false)
     } catch (error) {
       console.error("Failed to start recording:", error)
       setLoading(false)
@@ -197,47 +191,52 @@ const AudioRecorder = ({ onAudioRecorded, onCancel }) => {
 
   const stopRecording = async () => {
     console.log("Stopping recording on platform:", Platform.OS)
-    if (Platform.OS === "web") {
-      if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
-        console.log("Stopping web recording")
-        mediaRecorder.current.stop()
-        if (audioStream.current) {
-          console.log("Stopping audio stream")
-          audioStream.current.getTracks().forEach((track) => track.stop())
+    try {
+      if (Platform.OS === "web") {
+        if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
+          console.log("Stopping web recording")
+          mediaRecorder.current.stop()
+          if (audioStream.current) {
+            console.log("Stopping audio stream")
+            audioStream.current.getTracks().forEach((track) => track.stop())
+          }
+          clearInterval(timer.current)
         }
-        clearInterval(timer.current)
+      } else {
+        if (!recording) {
+          console.log("No active recording to stop")
+          return
+        }
+
+        try {
+          console.log("Stopping mobile recording")
+          setRecordingStatus("stopping")
+          clearInterval(timer.current)
+
+          const currentRecording = recording
+          setRecording(null)
+
+          await currentRecording.stopAndUnloadAsync()
+          console.log("Recording stopped")
+
+          const uri = currentRecording.getURI()
+          console.log("Recording URI:", uri)
+          setAudioUri(uri)
+          setRecordingStatus("stopped")
+
+          await Audio.setAudioModeAsync({
+            allowsRecordingIOS: false,
+          })
+        } catch (error) {
+          console.error("Failed to stop recording:", error)
+          setRecordingStatus("idle")
+          Alert.alert("Error", "Failed to stop recording. Please try again.")
+        }
       }
-    } else {
-      if (!recording) {
-        console.log("No active recording to stop")
-        return
-      }
-
-      try {
-        console.log("Stopping mobile recording")
-        setRecordingStatus("stopping")
-        clearInterval(timer.current)
-
-        const currentRecording = recording
-        setRecording(null)
-
-        await currentRecording.stopAndUnloadAsync()
-        console.log("Recording stopped")
-
-        const uri = currentRecording.getURI()
-        console.log("Recording URI:", uri)
-        setAudioUri(uri)
-        setRecordingStatus("stopped")
-
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          // Fix for invalid interruptionModeAndroid value
-          interruptionModeAndroid: Audio.InterruptionModeAndroid.DoNotMix,
-        })
-      } catch (error) {
-        console.error("Failed to stop recording:", error)
-        setRecordingStatus("idle")
-      }
+    } catch (error) {
+      console.error("Error in stopRecording:", error)
+      setRecordingStatus("idle")
+      Alert.alert("Error", "An unexpected error occurred. Please try again.")
     }
   }
 
@@ -383,7 +382,6 @@ const AudioRecorder = ({ onAudioRecorded, onCancel }) => {
         })
     } else {
       console.log("Sending mobile audio:", audioUri)
-      // For Android, we need to ensure we're passing the correct file information
       onAudioRecorded({
         uri: audioUri,
         duration,
@@ -412,7 +410,7 @@ const AudioRecorder = ({ onAudioRecorded, onCancel }) => {
         <View style={styles.recordingContainer}>
           <View style={styles.recordingInfo}>
             <Ionicons name="radio" size={24} color="#F44336" />
-            <Text style={styles.recordingText}>Recording... {formatTime(duration)}</Text>
+            <Text style={styles.recordingText}>Recording Audio... </Text>
           </View>
           <TouchableOpacity style={styles.stopButton} onPress={stopRecording}>
             <Ionicons name="stop-circle" size={32} color="white" />
@@ -426,7 +424,7 @@ const AudioRecorder = ({ onAudioRecorded, onCancel }) => {
             <TouchableOpacity style={styles.playButton} onPress={isPlaying ? pauseSound : playSound}>
               <Ionicons name={isPlaying ? "pause" : "play"} size={24} color="white" />
             </TouchableOpacity>
-            <Text style={styles.durationText}>{formatTime(duration)}</Text>
+            <Text style={styles.durationText}>Plat to test</Text>
           </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
@@ -445,7 +443,6 @@ const AudioRecorder = ({ onAudioRecorded, onCancel }) => {
 }
 
 const styles = StyleSheet.create({
-  // Styles remain the same
   container: {
     backgroundColor: "#F5F5F5",
     borderTopWidth: 1,
