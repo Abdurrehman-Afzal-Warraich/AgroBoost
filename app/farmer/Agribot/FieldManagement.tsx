@@ -8,6 +8,7 @@ import { Button } from "react-native-elements"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import Toast from '../../components/Toast'
 import axios from 'axios'
+import { FASTAPI_URL } from "@/app/utils/constants"
 
 interface FormData {
   cropType: string
@@ -35,7 +36,7 @@ interface RecommendationQuestion {
 }
 
 // Base URL for API
-const API_BASE_URL = "http://192.168.1.10:8000" // Replace with your actual API base URL
+const API_BASE_URL = `${FASTAPI_URL}` // Replace with your actual API base URL
 
 const FieldManagementScreen = () => {
   const { t, i18n } = useTranslation()

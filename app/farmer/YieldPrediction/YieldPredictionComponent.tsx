@@ -16,8 +16,46 @@ import PredictionControls from "./PredictionControls"
 import PredictionHistory from "./PredictionHistory"
 import MapSection from "./MapSection"
 import HeaderSection from "./HeaderSection"
-import { type YieldPredictionData, type BackendPredictionRequest, type BackendPredictionResponse, type CityType, CITY_MAPPING, ensureCityType, ensureDate } from "./types"
 import { FASTAPI_URL } from "@/app/utils/constants"
+import { type YieldPredictionData, type BackendPredictionRequest, type BackendPredictionResponse, type CityType, CITY_MAPPING, ensureCityType, ensureDate } from "./types"
+import { set } from "date-fns"
+
+
+const YieldPredictionComponent = () => {
+  const { t, i18n } = useTranslation()
+  const router = useRouter()
+  const { fields, loading: fieldsLoading } = useFields()
+  const { farmerData, loading: farmerLoading } = useFarmer()
+  const [wheatField, setWheatField] = useState<FieldData | null>(null)
+  const [predictionData, setPredictionData] = useState<YieldPredictionData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isPredicting, setIsPredicting] = useState(false)
+  const [dataInitialized, setDataInitialized] = useState(false)
+  const [peracreYield, setPeracreYield] = useState(0)
+  const [toastConfig, setToastConfig] = useState<{
+    visible: boolean
+    message: string
+    type: "success" | "error" | "info"
+  }>({
+    visible: false,
+    message: "",
+    type: "error",
+  })
+
+  const isRTL = i18n.language === "ur"
+
+  const showToast = (message: string, type: "success" | "error" | "info" = "error") => {
+    setToastConfig({
+      visible: true,
+      message,
+      type,
+    })
+  }
+
+  const hideToast = () => {
+    setToastConfig((prev) => ({ ...prev, visible: false }))
+  }
+
 const fetchPredictionFromBackend = async (data: BackendPredictionRequest): Promise<number> => {
   console.log("Sending prediction request to backend with data:", data);
 
@@ -35,8 +73,17 @@ const fetchPredictionFromBackend = async (data: BackendPredictionRequest): Promi
   }
 
   const result = await response.json() as BackendPredictionResponse;
-  return result.predicted_yield;
+
+  const predictedYield = parseFloat(result.predicted_yield);
+  const roundedYield = Math.round((predictedYield + Number.EPSILON) * 100) / 100; // Proper rounding
+
+  console.log("Received prediction response from backend:", roundedYield);
+  setPeracreYield(roundedYield);
+  console.log("Per acre yield set to:", roundedYield);
+
+  return roundedYield;
 };
+
 
 // Add utility function to format dates
 const formatDate = (date: Date): string => {
@@ -65,39 +112,6 @@ const calculatePredictionParams = (sowingDate: Date, currentRound: number): {
   };
 };
 
-const YieldPredictionComponent = () => {
-  const { t, i18n } = useTranslation()
-  const router = useRouter()
-  const { fields, loading: fieldsLoading } = useFields()
-  const { farmerData, loading: farmerLoading } = useFarmer()
-  const [wheatField, setWheatField] = useState<FieldData | null>(null)
-  const [predictionData, setPredictionData] = useState<YieldPredictionData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isPredicting, setIsPredicting] = useState(false)
-  const [dataInitialized, setDataInitialized] = useState(false)
-  const [toastConfig, setToastConfig] = useState<{
-    visible: boolean
-    message: string
-    type: "success" | "error" | "info"
-  }>({
-    visible: false,
-    message: "",
-    type: "error",
-  })
-
-  const isRTL = i18n.language === "ur"
-
-  const showToast = (message: string, type: "success" | "error" | "info" = "error") => {
-    setToastConfig({
-      visible: true,
-      message,
-      type,
-    })
-  }
-
-  const hideToast = () => {
-    setToastConfig((prev) => ({ ...prev, visible: false }))
-  }
 
   const initializeData = useCallback(async () => {
     if (dataInitialized || fieldsLoading || farmerLoading) return;
@@ -343,7 +357,7 @@ const YieldPredictionComponent = () => {
           <FieldDetailsCard predictionData={predictionData} wheatField={wheatField} isRTL={isRTL} t={t} />
         )}
 
-        {predictionData && <YieldEstimateCard predictionData={predictionData} isRTL={isRTL} t={t} />}
+        {predictionData && <YieldEstimateCard predictionData={predictionData} peracreYield = {peracreYield} isRTL={isRTL} t={t} />}
 
         {predictionData && <YieldForecastChart predictionData={predictionData} isRTL={isRTL} t={t} />}
 

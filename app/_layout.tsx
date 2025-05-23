@@ -129,19 +129,38 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="farmer/BuyCoins"
-              options={{ ...commonHeaderOptions, title: t("buyCoins") }}
+              options={{ ...commonHeaderOptions, title: t("Buy Coins") }}
             />
             <Stack.Screen
+              name="farmer/auction/AuctionFormModal"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="farmer/auction/dashboard"
+              options={{
+              ...commonHeaderOptions,
+              title: t("Auction Dashboard"),
+              headerLeft: () => null, 
+              headerShown: false, 
+             }}
+             />
+             <Stack.Screen
+              name="farmer/AuctionBids"
+              options={{ ...commonHeaderOptions, title: t("Auction Bids") }}
+            />
+              <Stack.Screen
               name="farmer/AuctionSystem"
-              options={{ ...commonHeaderOptions, title: t("AuctionSystem") }}
+              options={{ ...commonHeaderOptions,
+               title: t("Auction System") }}
             />
             <Stack.Screen
-              name="farmer/AuctionPreview"
+              name="farmer/auction/AuctionForm"
+              options={{ ...commonHeaderOptions,
+               title: t("Auction Form") }}
+            />
+            <Stack.Screen
+              name="farmer/auction/AuctionPreview"
               options={{ ...commonHeaderOptions, title: t("Auction Preview") }}
-            />
-            <Stack.Screen
-              name="farmer/MyAuctions"
-              options={{ ...commonHeaderOptions, title: t("My Auctions") }}
             />
             <Stack.Screen
               name="farmer/FieldDetails"
@@ -249,6 +268,18 @@ export default function RootLayout() {
             <Stack.Screen
               name="buyer/CoinScreen"
               options={{ ...commonHeaderOptions, title: t("Coins") }}
+            />
+            <Stack.Screen
+              name="buyer/BuyCoins"
+              options={{ ...commonHeaderOptions, title: t("Buy Coins") }}
+            />
+             <Stack.Screen
+              name="buyer/PaymentSystem"
+              options={{ ...commonHeaderOptions, title: t("Payment") }}
+            />
+            <Stack.Screen
+              name="buyer/AfterAuctionProcess"
+              options={{ ...commonHeaderOptions, title: t("Pay AgroCoin") }}
             />
             <Stack.Screen
               name="buyer/AuctionSystemTab"

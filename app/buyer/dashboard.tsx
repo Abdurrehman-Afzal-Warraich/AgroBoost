@@ -11,13 +11,14 @@ import CoinDisplay from '../../components/CoinDisplay';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useBuyer } from './hooks/fetch_buyer';
 import { use } from 'i18next';
-
+import { doc, setDoc } from 'firebase/firestore';
+import { my_auth, db } from '../../firebaseConfig';
 
 const Tab = createBottomTabNavigator();
 
 const TabIcon = ({ name, color, size = 26 }: { name: string; color: string; size?: number }) => (
   <View style={styles.iconContainer}>
-    <MaterialCommunityIcons name={name} size={size} color={color} />
+    <MaterialCommunityIcons name={name as any} size={size} color={color} />
   </View>
 );
 
@@ -28,12 +29,19 @@ const BuyerDashboard = () => {
   const { profileData, updateProfilePicture } = useBuyer();
   
     useEffect(() => {
-      const fetchCoins = async () => {
-        if (profileData) {
-          setCoins(profileData.coins);
+      const initializeCoins = async () => {
+        if (profileData && profileData.coins === 0) {
+          // If coins are 0, set them to 1000
+          const user = my_auth.currentUser;
+          if (user) {
+            const userRef = doc(db, 'buyer', user.uid);
+            await setDoc(userRef, { coins: 1000 }, { merge: true });
+          }
         }
+        setCoins(profileData?.coins || 1000);
       };
-      fetchCoins();
+      
+      initializeCoins();
     }, [profileData]);
   
 if (profileData.loading) {

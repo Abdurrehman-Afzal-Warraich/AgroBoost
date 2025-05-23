@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Button } from 'react-native-elements';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 interface IssueCategory {
   key: string;
@@ -25,6 +26,7 @@ const Help = () => {
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [description, setDescription] = useState('');
+  const router = useRouter();
 
   const issueCategories: IssueCategory[] = [
     {
@@ -71,7 +73,6 @@ const Help = () => {
 
     setLoading(true);
     try {
-      // Here you would make the API call to your backend
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulated API call
       Alert.alert(
         'Success',
@@ -97,71 +98,32 @@ const Help = () => {
     }
   };
 
+  const handleExpertConsultation = () => {
+    router.push('/farmer/ExpertConsultation');
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>How can we help you?</Text>
-        
-        {/* Issue Categories */}
-        <View style={styles.categoriesContainer}>
-          {issueCategories.map((category) => (
-            <TouchableOpacity
-              key={category.key}
-              style={[
-                styles.categoryCard,
-                selectedCategory === category.key && styles.selectedCard,
-              ]}
-              onPress={() => setSelectedCategory(category.key)}
-            >
-              <MaterialCommunityIcons
-                name={category.icon as any}
-                size={32}
-                color={selectedCategory === category.key ? '#FFC107' : '#4CAF50'}
-              />
-              <Text style={[
-                styles.categoryTitle,
-                selectedCategory === category.key && styles.selectedText,
-              ]}>
-                {category.title}
-              </Text>
-              <Text style={[
-                styles.categoryDescription,
-                selectedCategory === category.key && styles.selectedText,
-              ]}>
-                {category.description}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        {/* Expert Consultation Section */}
+        <View style={styles.expertAdviceContainer}>
+          <MaterialCommunityIcons name="account-tie" size={40} color="#4CAF50" />
+          <Text style={styles.expertAdviceTitle}>Need More Help?</Text>
+          <Text style={styles.expertAdviceText}>
+            Not satisfied with the chatbot's suggestions? Don't worry — you're not alone.
+            Sometimes problems need a real human touch. Reach out to our agricultural experts
+            for personalized help tailored to your needs.
+          </Text>
+          <TouchableOpacity
+            style={styles.expertButton}
+            onPress={handleExpertConsultation}
+          >
+            <Text style={styles.expertButtonText}>Talk to an Expert</Text>
+            <MaterialCommunityIcons name="arrow-right" size={20} color="white" />
+          </TouchableOpacity>
         </View>
 
-        {/* Description Input */}
-        {selectedCategory && (
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Describe your issue:</Text>
-            <TextInput
-              style={styles.textInput}
-              multiline
-              numberOfLines={4}
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Please provide details about your issue..."
-              textAlignVertical="top"
-            />
-          </View>
-        )}
-
-        {/* Submit Button */}
-        {selectedCategory && (
-          <Button
-            title={loading ? 'Submitting...' : 'Submit'}
-            onPress={handleSubmit}
-            disabled={loading}
-            buttonStyle={styles.submitButton}
-            titleStyle={styles.submitButtonText}
-            containerStyle={styles.submitButtonContainer}
-          />
-        )}
-        {loading && <ActivityIndicator style={styles.loader} color="#4CAF50" />}
+        
       </ScrollView>
     </View>
   );
@@ -174,6 +136,41 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
+  },
+  expertAdviceContainer: {
+    backgroundColor: '#E8F5E9',
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: '#81C784',
+  },
+  expertAdviceTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#2E7D32',
+    marginVertical: 10,
+  },
+  expertAdviceText: {
+    fontSize: 16,
+    color: '#1B5E20',
+    lineHeight: 22,
+    marginBottom: 15,
+  },
+  expertButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+  },
+  expertButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    marginRight: 8,
   },
   title: {
     fontSize: 24,

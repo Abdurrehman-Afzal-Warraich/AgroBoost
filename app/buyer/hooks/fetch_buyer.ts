@@ -16,10 +16,11 @@ export const useBuyer = () => {
     preferredLanguage: 'en',
     phoneNumber: '',
     address: '',
+    totalPayments: 0,
     loading: true
   });
 
-  const updateProfilePicture = (url) => {
+  const updateProfilePicture = (url: string) => {
     setProfileData(prev => ({ ...prev, profilePicture: url }));
   };
 
@@ -33,8 +34,15 @@ export const useBuyer = () => {
     const unsubscribe = onSnapshot(doc(db, 'buyer', user.uid), (doc) => {
       if (doc.exists()) {
         const data = doc.data();
+        // Ensure businessName is properly trimmed and validated
+        const businessName = data.businessName ? data.businessName.trim() : '';
+        
+        if (!businessName) {
+          console.warn('Buyer profile exists but business name is empty');
+        }
+        
         setProfileData({
-          businessName: data.businessName || '',
+          businessName: businessName,
           businessType: data.businessType || '',
           transactions: data.transactions || 0,
           coins: data.coins || 0,
@@ -42,10 +50,12 @@ export const useBuyer = () => {
           preferredLanguage: data.preferredLanguage || 'en',
           phoneNumber: data.phoneNumber || '',
           address: data.address || '',
+          totalPayments: data.totalPayments || 0,
           loading: false
         });
       } else {
         // Document doesn't exist
+        console.warn('Buyer profile document does not exist');
         setProfileData(prev => ({ ...prev, loading: false }));
       }
     }, (error) => {

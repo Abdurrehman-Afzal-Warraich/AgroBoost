@@ -14,11 +14,7 @@ const LandingPage = () => {
       screen: "farmer/Agribot/PlantDiseases",
       icon: "bug-outline" 
     },
-    { 
-      title: t("agribot.options.cropAdvice"),
-      screen: "farmer/Agribot/CropAdvice",
-      icon: "leaf-outline"
-    },
+    
     { 
       title: t("agribot.options.fieldManagement"),
       screen: "farmer/Agribot/FieldManagement",

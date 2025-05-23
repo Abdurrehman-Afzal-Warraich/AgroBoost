@@ -1,12 +1,14 @@
 import type React from "react"
 import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
+import { useRouter } from "expo-router"
 import type { YieldPredictionData } from "./types"
 
 interface PredictionControlsProps {
   predictionData: YieldPredictionData
   isPredicting: boolean
   handlePrediction: () => void
+  onAddToAuction: () => void
   isRTL: boolean
   t: (key: string) => string
 }
@@ -15,6 +17,7 @@ const PredictionControls: React.FC<PredictionControlsProps> = ({
   predictionData,
   isPredicting,
   handlePrediction,
+  onAddToAuction,
   isRTL,
   t,
 }) => {
@@ -40,6 +43,14 @@ const PredictionControls: React.FC<PredictionControlsProps> = ({
             </>
           )}
         </TouchableOpacity>
+
+        {/* <TouchableOpacity
+          style={[styles.auctionButton, isRTL && styles.rtlRow]}
+          onPress={onAddToAuction}
+>
+         <MaterialCommunityIcons name="gavel" size={20} color="#FFFFFF" />
+         <Text style={styles.auctionButtonText}>{t("Add to Auction")}</Text>
+        </TouchableOpacity> */}
       </View>
     </View>
   )
@@ -105,6 +116,22 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 3,
   },
+  auctionButton: {
+flexDirection: "row",
+alignItems: "center",
+justifyContent: "center",
+backgroundColor: "#DEA82A",
+borderRadius: 8,
+paddingVertical: 12,
+paddingHorizontal: 20,
+marginTop: 10,
+},
+auctionButtonText: {
+color: "#FFFFFF",
+fontSize: 16,
+fontWeight: "600",
+marginLeft: 8,
+},
 })
 
 export default PredictionControls

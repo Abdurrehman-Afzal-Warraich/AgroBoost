@@ -4,6 +4,9 @@ import { Button, ListItem, Icon } from 'react-native-elements';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { useBuyer } from './hooks/fetch_buyer';
+import { router } from 'expo-router';
+import { doc, setDoc } from 'firebase/firestore';
+import { db, my_auth } from '../../firebaseConfig';
 
 
 const CoinScreen = () => {
@@ -18,13 +21,20 @@ const CoinScreen = () => {
   ]);
 
   useEffect(() => {
-        const fetchCoins = async () => {
-          if (profileData) {
-            setBalance(profileData.coins);
-          }
-        };
-        fetchCoins();
-      }, [profileData]);
+    const initializeCoins = async () => {
+      if (profileData && profileData.coins === 0) {
+        // If coins are 0, set them to 1000
+        const user = my_auth.currentUser;
+        if (user) {
+          const userRef = doc(db, 'buyer', user.uid);
+          await setDoc(userRef, { coins: 1000 }, { merge: true });
+        }
+      }
+      setBalance(profileData?.coins || 1000);
+    };
+    
+    initializeCoins();
+  }, [profileData]);
 
 
 
@@ -41,7 +51,7 @@ const CoinScreen = () => {
         </View>
         <Button
           title={i18n.language === 'ur' ? 'کوائنز خریدیں' : t('buyCoins')}
-          onPress={() => {/* Implement coin purchase */}}
+          onPress={() => router.push('/buyer/BuyCoins')}
           buttonStyle={styles.button}
           titleStyle={styles.buttonTitle}
           containerStyle={styles.buttonContainer}

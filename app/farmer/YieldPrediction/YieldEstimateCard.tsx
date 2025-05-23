@@ -1,15 +1,24 @@
 import type React from "react"
-import { StyleSheet, View, Text } from "react-native"
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import type { YieldPredictionData } from "./types"
 
 interface YieldEstimateCardProps {
   predictionData: YieldPredictionData
   isRTL: boolean
+  peracreYield: number
   t: (key: string) => string
+  onAddToAuction?: () => void
 }
 
-const YieldEstimateCard: React.FC<YieldEstimateCardProps> = ({ predictionData, isRTL, t }) => {
+const YieldEstimateCard: React.FC<YieldEstimateCardProps> = ({ predictionData, isRTL, t , peracreYield, onAddToAuction}) => {
+  console.log("YieldEstimateCard", peracreYield)
+  console.log("🔍 YieldEstimateCard props:");
+  console.log("predictionData:", predictionData);
+  console.log("peracreYield:", peracreYield);
+  console.log("t('mounds'):", t("mounds")); // See if this returns undefined
+  console.log("t('maunds'):", t("maunds")); // Try both variants
+
   return (
     <View style={[styles.predictionCard, styles.cardShadow]}>
       <View style={[styles.cardHeader, isRTL && styles.rtlRow]}>
@@ -21,32 +30,37 @@ const YieldEstimateCard: React.FC<YieldEstimateCardProps> = ({ predictionData, i
           {predictionData.predictedYield} {t("maunds")}
         </Text>
 
-        {predictionData.cityAverage && predictionData.totalCityAverage && (
-          <View style={[styles.yieldComparisonContainer, isRTL && styles.rtlRow]}>
-            {predictionData.predictedYield > predictionData.totalCityAverage ? (
-              <MaterialCommunityIcons name="arrow-up" size={24} color="#3A8A41" />
-            ) : (
-              <MaterialCommunityIcons name="arrow-down" size={24} color="#E74C3C" />
-            )}
-            <Text
-              style={[
-                styles.yieldComparison,
-                isRTL && styles.rtlText,
-                {
-                  color: predictionData.predictedYield > predictionData.totalCityAverage ? "#3A8A41" : "#E74C3C",
-                },
-              ]}
-            >
-              {Math.abs(Math.round((predictionData.predictedYield / predictionData.totalCityAverage - 1) * 100))}%{" "}
-              {predictionData.predictedYield > predictionData.totalCityAverage
-                ? t("higher than city average")
-                : t("lower than city average")}
-            </Text>
-          </View>
-        )}
+       {predictionData.cityAverage && predictionData.totalCityAverage && (
+  <View style={[styles.yieldComparisonContainer, isRTL && styles.rtlRow]}>
+    {predictionData.predictedYield > predictionData.totalCityAverage ? (
+      <MaterialCommunityIcons name="arrow-up" size={24} color="#3A8A41" />
+    ) : (
+      <MaterialCommunityIcons name="arrow-down" size={24} color="#E74C3C" />
+    )}
+    <Text
+      style={[
+        styles.yieldComparison,
+        isRTL && styles.rtlText,
+        {
+          color:
+            predictionData.predictedYield > predictionData.totalCityAverage
+              ? "#3A8A41"
+              : "#E74C3C",
+        },
+      ]}
+    >
+      {Math.abs(Math.round((predictionData.predictedYield / predictionData.totalCityAverage - 1) * 100))}%{" "}
+      {predictionData.predictedYield > predictionData.totalCityAverage
+        ? t("higher than city average")
+        : t("lower than city average")}
+    </Text>
+    
+  </View>
+  
+)}
+
 
         <View style={styles.divider} />
-
         <View style={styles.yieldMetricsContainer}>
           {predictionData.cityAverage && (
             <View style={styles.yieldMetric}>
@@ -67,13 +81,27 @@ const YieldEstimateCard: React.FC<YieldEstimateCardProps> = ({ predictionData, i
           )}
 
           <View style={styles.yieldMetric}>
-            <Text style={[styles.metricLabel, isRTL && styles.rtlText]}>{t("Total Field Size")}</Text>
-            <Text style={[styles.metricValue, isRTL && styles.rtlText]}>
+             <Text style={[styles.metricLabel, isRTL && styles.rtlText]}>{t("Total Field Size")}</Text>
+             <Text style={[styles.metricValue, isRTL && styles.rtlText]}>
               {predictionData.fieldSize} {t("acres")}
-            </Text>
+             </Text>
+             <Text style={[styles.metricLabel, isRTL && styles.rtlText]}>{t("Yield Prediction per acre")}</Text>
+             <Text style={[styles.metricValue, isRTL && styles.rtlText]}>
+              {peracreYield} {t("maunds")} 
+             </Text>
           </View>
+
         </View>
       </View>
+      {onAddToAuction && (
+        <TouchableOpacity 
+          style={[styles.auctionButton, isRTL && styles.rtlRow]} 
+          onPress={onAddToAuction}
+        >
+          <MaterialCommunityIcons name="gavel" size={20} color="#FFFFFF" />
+          <Text style={styles.auctionButtonText}>{t("Add to Auction")}</Text>
+        </TouchableOpacity>
+      )}
     </View>
   )
 }
@@ -165,6 +193,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 3,
+  },
+  auctionButton: {
+    backgroundColor: "#3A8A41",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  auctionButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
   },
 })
 

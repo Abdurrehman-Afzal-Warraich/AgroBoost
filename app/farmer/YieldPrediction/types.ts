@@ -23,17 +23,21 @@ export const ROUND_TO_MONTH_MAPPING = [
 export type CityType = 'Lahore' | 'Faisalabad' | 'Rawalpindi' | 'Gujranwala' | 'Multan' | 'Sargodha' | 'Sialkot' | 'Bahawalpur' | 'Sheikhupura' | 'Jhang' | 'Rahim Yar Khan';
 
 export const CITY_MAPPING: Record<CityType, number> = {
-  'Lahore': 45,
-  'Faisalabad': 42,
-  'Rawalpindi': 38,
-  'Gujranwala': 40,
-  'Multan': 43,
-  'Sargodha': 41,
-  'Sialkot': 39,
-  'Bahawalpur': 44,
-  'Sheikhupura': 40,
-  'Jhang': 41,
-  'Rahim Yar Khan': 42
+  'Lahore': 32.74,
+  'Faisalabad': 33.83,
+  'Rawalpindi': 16.8,
+  'Gujranwala': 30.1,
+  'Multan': 36.08,
+  'Sargodha': 25.77,
+  'Sialkot': 30.24,
+  'Bahawalpur': 31.69,
+  'Sheikhupura': 32.69,
+  'Jhang': 29.74,
+  'Rahim Yar Khan': 33.26,
+  'Bahawalnagar': 31.9,
+  'Muzaffargarh': 33.26,
+  'Vehari': 33.26,
+  'Default': 38
 };
 
 export interface YieldPredictionData {

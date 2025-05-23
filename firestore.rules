@@ -7,6 +7,78 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
     
+    // Function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is accessing their own data
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Helper function to validate payment data
+    function isValidPayment() {
+      let incoming = request.resource.data;
+      return incoming.size() > 0 
+        && incoming.userId is string
+        && incoming.role in ['buyer', 'farmer']
+        && incoming.name is string
+        && incoming.paymentStatus in ['successful', 'failed', 'pending']
+        && incoming.amount is number && incoming.amount > 0
+        && incoming.paymentId is string
+        && incoming.timestamp is timestamp
+        && incoming.transactionDetails.currency is string
+        && incoming.transactionDetails.paymentMethod is string
+        && incoming.transactionDetails.status is string;
+    }
+    
+    match /{document=**} {
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    // Specific rules for user collections
+    match /farmer/{userId} {
+      allow delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    match /buyer/{userId} {
+      allow delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    match /expert/{userId} {
+      allow delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+      match /expert/{expertId} {
+      // Anyone can read expert data
+      allow read: if true;
+      
+      // Allow updates from authenticated users
+      allow update: if request.auth != null;
+      
+      // Only admin can create/delete
+      allow create, delete: if false;
+    }
+    
+    match /ratings/{ratingId} {
+      // Allow read for authenticated users
+      allow read: if request.auth != null;
+      
+      // Allow create for authenticated users
+      allow create: if request.auth != null && 
+                     request.resource.data.farmerId == request.auth.uid;
+      
+      // Allow update for the farmer who created the rating
+      allow update: if request.auth != null && 
+                     resource.data.farmerId == request.auth.uid;
+      
+      // Don't allow deletion of ratings
+      allow delete: if false;
+    }
+    
+    
     // Schemes collection rules
     match /schemes/{scheme} {
       allow read: if true;  // Anyone can read schemes
@@ -18,28 +90,90 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
     
+    
+    // Chat Requests collection rules
+    match /chatRequests/{requestId} {
+      // Allow creating if the user is setting themselves as the farmer
+      allow create: if request.auth != null && 
+                     request.resource.data.farmerId == request.auth.uid;
+      
+      // Allow reading if the user is either the farmer or expert
+      allow read: if request.auth != null && 
+                   (resource.data.farmerId == request.auth.uid || 
+                    resource.data.expertId == request.auth.uid);
+      
+      // Allow updating if the user is either the farmer or expert
+      allow update: if request.auth != null && 
+                     (resource.data.farmerId == request.auth.uid || 
+                      resource.data.expertId == request.auth.uid) &&
+                     // Ensure farmerId and expertId fields aren't changed
+                     request.resource.data.farmerId == resource.data.farmerId &&
+                     request.resource.data.expertId == resource.data.expertId;
+      
+      // Allow deleting if the user is either the farmer or expert
+      allow delete: if request.auth != null && 
+                     (resource.data.farmerId == request.auth.uid || 
+                      resource.data.expertId == request.auth.uid);
+    }
+    
+    // Messages collection rules
+    match /messages/{messageId} {
+      // Allow creating if the user is setting themselves as the sender
+      // and they are part of the chat (either farmer or expert)
+      allow create: if request.auth != null && 
+                     request.resource.data.senderId == request.auth.uid &&
+                     (request.resource.data.senderId == request.resource.data.farmerId || 
+                      request.resource.data.senderId == request.resource.data.expertId ||
+                      request.resource.data.receiverId == request.resource.data.farmerId ||
+                      request.resource.data.receiverId == request.resource.data.expertId);
+      
+      // Allow reading if the user is either the sender or receiver
+      allow read: if request.auth != null && 
+                   (resource.data.senderId == request.auth.uid || 
+                    resource.data.receiverId == request.auth.uid);
+      
+      // Allow updating only the 'read' field if the user is the receiver
+      allow update: if request.auth != null && 
+                     resource.data.receiverId == request.auth.uid &&
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+    }
+    
+    // Root level fields collection - new rules
+    match /fields/{fieldId} {
+      // Allow read access only if the field belongs to the authenticated user
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      
+      // Allow write access only if the user is setting their own userId in the field
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && 
+                     resource.data.userId == request.auth.uid && 
+                     request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      
+      // Rules for field predictions subcollection if needed
+      match /predictions/{predictionId} {
+        allow read: if request.auth != null && get(/databases/$(database)/documents/fields/$(fieldId)).data.userId == request.auth.uid;
+        allow write: if request.auth != null && get(/databases/$(database)/documents/fields/$(fieldId)).data.userId == request.auth.uid;
+      }
+    }
+    
     // Allow read access to all documents (you might want to restrict this)
     match /{document=**} {
       allow read: if true;
     }
-
-    // Allow write access to authenticated users and their subcollections
+    
+    // User document rules
     match /users/{userId} {
       allow create: if request.auth != null && request.auth.uid == userId;
       allow update: if request.auth != null && request.auth.uid == userId;
       allow delete: if request.auth != null && request.auth.uid == userId;
       
-      // Updated rules for fields collection and its subcollections
-      match /fields/{fieldId} {
+      // Keep existing rules for potential other subcollections under users
+      match /{collection}/{docId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
-        
-        // Add specific rules for predictions subcollection
-        match /predictions/{predictionId} {
-          allow read, write: if request.auth != null && request.auth.uid == userId;
-        }
       }
     }
-
+    
     // Allow write access to user-specific collections
     match /{userType}/{userId} {
       allow create: if request.auth != null && request.auth.uid == userId;
@@ -51,5 +185,53 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
+    
+     match /consultations/{consultationId} {
+      // Allow experts to create consultations (when accepting a chat request)
+      allow create: if request.auth != null && 
+                     request.resource.data.expertId == request.auth.uid;
+      
+      // Allow both farmer and expert to read their own consultations
+      allow read: if request.auth != null && 
+                   (resource.data.farmerId == request.auth.uid || 
+                    resource.data.expertId == request.auth.uid);
+      
+      // Allow both farmer and expert to update consultations
+      // (e.g., update last message, mark as completed)
+      allow update: if request.auth != null && 
+                     (resource.data.farmerId == request.auth.uid || 
+                      resource.data.expertId == request.auth.uid) &&
+                     // Prevent changing critical fields like farmerId and expertId
+                     request.resource.data.farmerId == resource.data.farmerId &&
+                     request.resource.data.expertId == resource.data.expertId;
+      
+      // Allow experts to delete consultations (if needed)
+      allow delete: if request.auth != null && 
+                     resource.data.expertId == request.auth.uid;
+    }
+    
+    // Auction collection rules
+match /auction/{auctionId} {
+  allow read: if true;  // Allow anyone to read auction listings
+  allow write: if request.auth != null;  // Allow authenticated users to write
+}
+
+    // Payments collection rules
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() 
+        && isOwner(request.resource.data.userId)
+        && isValidPayment();
+      allow update, delete: if false; // Payments should be immutable
+    }
+
+    // Buyer profile rules - making it more permissive while maintaining security
+    match /buyer/{userId} {
+      // Allow read for authenticated users accessing their own data
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow write for authenticated users updating their own data
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
   }
-} 
+}

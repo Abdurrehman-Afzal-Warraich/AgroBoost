@@ -71,7 +71,7 @@ const NewBuyer = () => {
           city,
           address,
           phoneNumber: `+92${phoneNumber}`,
-          coins: 0,
+          coins: 1000,
           isNewUser: false,
           createdAt: new Date(),
         }, { merge: true });

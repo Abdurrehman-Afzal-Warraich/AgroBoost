@@ -183,7 +183,7 @@ const CropAdvice = () => {
       console.log("Sending data to backend:", requestData)
 
       // API call to backend
-      const response = await fetch(`${FASTAPI_URL}/recommendation/`, {
+      const response = await fetch(`${FASTAPI_URL}/recommendations/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

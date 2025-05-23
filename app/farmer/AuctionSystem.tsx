@@ -1,308 +1,267 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
-import { useRouter } from "expo-router";
-import { useTranslation } from "react-i18next";
-import { useFarmer } from "../hooks/fetch_farmer";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { rtdb, my_auth } from "../../firebaseConfig.js";
-import { ref, push, set } from "firebase/database";
-import { useUser } from "../context/UserProvider";
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
+import YieldEstimateCard from './YieldPrediction/YieldEstimateCard';
+import { type YieldPredictionData } from './YieldPrediction/types';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { ref, onValue } from 'firebase/database';
+import { rtdb } from '@/firebaseConfig';
+import { useAuth } from '../context/AuthContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
+import { useFields } from '../hooks/useFields';
+import { useFarmer } from '../hooks/fetch_farmer';
+import { CITY_MAPPING, ensureCityType, ensureDate } from './YieldPrediction/types';
 
 const AuctionSystem = () => {
+  console.log("AuctionSystem component mounted");
   const router = useRouter();
-  const { t } = useTranslation();
-  const { farmerData } = useFarmer();
-  const { userName, email, city } = useUser();
-  const [formData, setFormData] = useState({
-    cropName: "",
-    quantity: "",
-    startingPrice: "",
-    location: farmerData?.city || "",
-  });
-  const [errors, setErrors] = useState({
-    cropName: "",
-    quantity: "",
-    startingPrice: "",
-    location: "",
-  });
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const { fields, loading: fieldsLoading } = useFields();
+  const { farmerData, loading: farmerLoading } = useFarmer();
+  const isRTL = i18n.language === "ur";
+  
+  const [peracreYield, setPeracreYield] = useState(0);
+  const [predictionData, setPredictionData] = useState<YieldPredictionData | null>(null);
+  const [hasActiveAuction, setHasActiveAuction] = useState(false);
+  const [loadingAuctions, setLoadingAuctions] = useState(true);
+  const [loadingPredictions, setLoadingPredictions] = useState(true);
 
-  const validateForm = () => {
-    const newErrors = {
-      cropName: "",
-      quantity: "",
-      startingPrice: "",
-      location: "",
-    };
+  useEffect(() => {
+    fetchPredictionData();
+    fetchFarmerAuctions();
+  }, [fields, farmerData]);
 
-    if (!formData.cropName.trim()) {
-      newErrors.cropName = t("error.cropNameRequired");
+  const fetchPredictionData = async () => {
+    if (fieldsLoading || farmerLoading) return;
+    
+    setLoadingPredictions(true);
+    
+    try {
+      if (!fields || fields.length === 0) {
+        console.log("No fields found");
+        setLoadingPredictions(false);
+        return;
+      }
+      
+      // Find wheat field
+      const wheatField = fields.find((field) => field.cropType.toLowerCase() === "wheat");
+      
+      if (!wheatField) {
+        console.log("No wheat field found");
+        setLoadingPredictions(false);
+        return;
+      }
+      
+      // Get city from farmer data
+      const city = farmerData ? ensureCityType(farmerData.city) : "Lahore";
+      
+      // Fetch prediction data from Firestore
+      const predictionRef = doc(db, "fields", wheatField.id, "predictions", "current");
+      const predictionDoc = await getDoc(predictionRef);
+      
+      if (predictionDoc.exists()) {
+        const data = predictionDoc.data() as YieldPredictionData;
+        const sowingDate = ensureDate(data.sowingDate);
+        
+        // Add city average using the CITY_MAPPING
+        const cityAverage = CITY_MAPPING[city];
+        const totalCityAverage = cityAverage * Number(wheatField.areaInAcres);
+        
+        // Format prediction history
+        const formattedHistory = data.predictionHistory ? 
+          data.predictionHistory.map(history => ({
+            ...history,
+            date: history.date instanceof Date ? history.date : new Date(history.date),
+          })) : [];
+        
+        // Update state with actual prediction data
+        setPredictionData({
+          ...data,
+          sowingDate: sowingDate,
+          cityAverage: cityAverage,
+          totalCityAverage: totalCityAverage,
+          city: city,
+          soilType: data.soilType || wheatField.soilType,
+          predictionHistory: formattedHistory,
+        });
+        
+        // Update per-acre yield
+        if (data.predictedYield && wheatField.areaInAcres) {
+          const calculatedYield = data.predictedYield / Number(wheatField.areaInAcres);
+          setPeracreYield(calculatedYield);
+        }
+      } else {
+        console.log("No prediction data found for this field");
+      }
+    } catch (error) {
+      console.error("Error fetching prediction data:", error);
+    } finally {
+      setLoadingPredictions(false);
     }
-    if (!formData.quantity.trim()) {
-      newErrors.quantity = t("error.quantityRequired");
-    } else if (
-      isNaN(Number(formData.quantity)) ||
-      Number(formData.quantity) <= 0
-    ) {
-      newErrors.quantity = t("error.invalidQuantity");
-    }
-    if (!formData.startingPrice.trim()) {
-      newErrors.startingPrice = t("error.priceRequired");
-    } else if (
-      isNaN(Number(formData.startingPrice)) ||
-      Number(formData.startingPrice) <= 0
-    ) {
-      newErrors.startingPrice = t("error.invalidPrice");
-    }
-    if (!formData.location.trim()) {
-      newErrors.location = t("error.locationRequired");
-    }
-
-    setErrors(newErrors);
-    return Object.values(newErrors).every((error) => !error);
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-    // Clear error when user starts typing
-    if (errors[field as keyof typeof errors]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: "",
-      }));
-    }
-  };
+  const fetchFarmerAuctions = () => {
+    if (!user?.uid) return;
 
-  const handlePreview = () => {
-    router.push({
-      pathname: "/farmer/AuctionPreview",
-      params: {
-        ...formData,
-        farmerName: farmerData?.name || "",
-        farmerId: my_auth.currentUser?.uid || "",
-      },
+    setLoadingAuctions(true);
+    const auctionsRef = ref(rtdb, 'auctions');
+    
+    onValue(auctionsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) {
+        setHasActiveAuction(false);
+        setLoadingAuctions(false);
+        return;
+      }
+
+      const activeAuctions = Object.values(data).filter((auction: any) => 
+        auction.createdBy?.farmerId === user.uid && 
+        (!auction.status || auction.status === 'active')
+      );
+
+      setHasActiveAuction(activeAuctions.length > 0);
+      setLoadingAuctions(false);
     });
   };
 
-  const handleAdd = async () => {
-    if (!validateForm()) {
-      Alert.alert(t("error.formValidationError"));
-      return;
-    }
-
-    try {
-      const auctionRef = ref(rtdb, "auctions");
-      const newAuctionRef = push(auctionRef);
-      await set(newAuctionRef, {
-        cropName: formData.cropName,
-        quantity: Number(formData.quantity),
-        startingPrice: Number(formData.startingPrice),
-        location: formData.location,
-        createdAt: Date.now(),
-        createdBy: {
-          userName,
-          email,
-          city,
-          farmerId: my_auth.currentUser?.uid || "",
+  const handleAddToAuction = () => {
+    if (predictionData) {
+      router.push({
+        pathname: '/farmer/auction/AuctionFormModal',
+        params: {
+          cropName: predictionData.cropType,
+          quantity: predictionData.predictedYield.toString(),
+          location: predictionData.city,
         },
-        bids: [],
       });
-
-      Alert.alert(t("success"), t("auctionAddedSuccessfully"));
-
-      // Reset form
-      setFormData({
-        cropName: "",
-        quantity: "",
-        startingPrice: "",
-        location: farmerData?.city || "",
-      });
-
-      // Navigate to /farmer/dashboard
-      router.push("/farmer/dashboard");
-    } catch (error) {
-      console.error("Error adding auction:", error);
-      Alert.alert(t("error"), t("error.addingAuction"));
     }
   };
 
+  const handleViewAuctions = () => {
+    router.push('/farmer/auction/dashboard');
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <MaterialCommunityIcons name="gavel" size={40} color="#4CAF50" />
-        <Text style={styles.heading}>{t("Add Auction")}</Text>
-      </View>
-
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>{t("cropName")}</Text>
-        <TextInput
-          style={[styles.input, errors.cropName ? styles.inputError : null]}
-          value={formData.cropName}
-          onChangeText={(value) => handleInputChange("cropName", value)}
-          placeholder={t("enterCropName")}
-        />
-        {errors.cropName ? (
-          <Text style={styles.errorText}>{errors.cropName}</Text>
-        ) : null}
-      </View>
-
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>{t("quantity")}</Text>
-        <TextInput
-          style={[styles.input, errors.quantity ? styles.inputError : null]}
-          value={formData.quantity}
-          onChangeText={(value) => handleInputChange("quantity", value)}
-          placeholder={t("enterQuantity")}
-          keyboardType="numeric"
-        />
-        {errors.quantity ? (
-          <Text style={styles.errorText}>{errors.quantity}</Text>
-        ) : null}
-      </View>
-
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>{t("startingPrice")}</Text>
-        <TextInput
-          style={[
-            styles.input,
-            errors.startingPrice ? styles.inputError : null,
-          ]}
-          value={formData.startingPrice}
-          onChangeText={(value) => handleInputChange("startingPrice", value)}
-          placeholder={t("enterStartingPrice")}
-          keyboardType="numeric"
-        />
-        {errors.startingPrice ? (
-          <Text style={styles.errorText}>{errors.startingPrice}</Text>
-        ) : null}
-      </View>
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>{t("location")}</Text>
-        <TextInput
-          style={[styles.input, errors.location ? styles.inputError : null]}
-          value={formData.location}
-          onChangeText={(value) => handleInputChange("location", value)}
-          placeholder={t("enterLocation")}
-        />
-        {errors.location ? (
-          <Text style={styles.errorText}>{errors.location}</Text>
-        ) : null}
-      </View>
-
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {loadingPredictions ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#3A8A41" />
+          </View>
+        ) : predictionData ? (
+          <YieldEstimateCard
+            predictionData={predictionData}
+            peracreYield={peracreYield}
+            isRTL={isRTL}
+            t={t}
+          />
+        ) : (
+          <View style={styles.noDataContainer}>
+            <Text style={styles.noDataText}>{t("No prediction data available")}</Text>
+          </View>
+        )}
+      </ScrollView>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.addButton]}
-          onPress={handleAdd}
+          style={[
+            styles.auctionButton, 
+            isRTL && styles.rtlRow,
+            (hasActiveAuction || loadingAuctions || !predictionData) && styles.disabledButton
+          ]}
+          onPress={handleAddToAuction}
+          disabled={hasActiveAuction || loadingAuctions || !predictionData}
         >
-          <MaterialCommunityIcons name="plus" size={24} color="#FFFFFF" />
-          <Text style={styles.buttonText}>{t("Add")}</Text>
+          <MaterialCommunityIcons 
+            name="gavel" 
+            size={20} 
+            color={hasActiveAuction || !predictionData ? "#AAAAAA" : "#FFFFFF"} 
+          />
+          <Text style={[
+            styles.auctionButtonText,
+            (hasActiveAuction || !predictionData) && styles.disabledText
+          ]}>
+            {t("Add to Auction")}
+            {hasActiveAuction && ` (${t("Active auction exists")})`}
+            {!predictionData && !hasActiveAuction && ` (${t("No prediction data")})`}
+          </Text>
         </TouchableOpacity>
-
         <TouchableOpacity
-          style={[styles.button, styles.previewButton]}
-          onPress={handlePreview}
+          style={[styles.viewAuctionsButton, isRTL && styles.rtlRow]}
+          onPress={handleViewAuctions}
         >
-          <MaterialCommunityIcons name="eye" size={24} color="#FFFFFF" />
-          <Text style={styles.buttonText}>{t("Preview")}</Text>
+          <MaterialCommunityIcons name="view-list" size={20} color="#FFFFFF" />
+          <Text style={styles.auctionButtonText}>{t("View My Auction")}</Text>
         </TouchableOpacity>
       </View>
-
-      <TouchableOpacity
-        style={[styles.button, styles.myAuctionsButton]}
-        onPress={() =>
-          router.push({
-            pathname: "/farmer/MyAuctions",
-            params: { farmerId: my_auth.currentUser?.uid || "" },
-          })
-        }
-      >
-        <MaterialCommunityIcons name="list-status" size={24} color="#fff" />
-        <Text style={styles.buttonText}>{t("My Auctions")}</Text>
-      </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
+    paddingVertical: 20,
+    backgroundColor: "#F8F9FA",
   },
-  header: {
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 30,
+    padding: 40,
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginTop: 10,
-    color: "#4CAF50",
+  noDataContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  myAuctionsButton: {
-    backgroundColor: "#2196F3",
-    marginTop: 20,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
+  noDataText: {
     fontSize: 16,
-    marginBottom: 8,
-    color: "#333",
-    fontWeight: "500",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: "#f9f9f9",
-  },
-  inputError: {
-    borderColor: "#FF5252",
-  },
-  errorText: {
-    color: "#FF5252",
-    fontSize: 12,
-    marginTop: 5,
+    color: '#666',
+    textAlign: 'center',
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 30,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    gap: 10,
   },
-  button: {
-    flex: 1,
+  auctionButton: {
+    backgroundColor: "#3A8A41",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 15,
+    padding: 16,
     borderRadius: 8,
-    marginHorizontal: 10,
   },
-  addButton: {
-    backgroundColor: "#4CAF50",
-  },
-  previewButton: {
+  viewAuctionsButton: {
     backgroundColor: "#FFC107",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+    borderRadius: 8,
   },
-  buttonText: {
-    color: "#fff",
+  auctionButtonText: {
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     marginLeft: 8,
+  },
+  rtlRow: {
+    flexDirection: "row-reverse",
+  },
+  disabledButton: {
+    backgroundColor: "#E0E0E0",
+  },
+  disabledText: {
+    color: "#AAAAAA",
   },
 });
 

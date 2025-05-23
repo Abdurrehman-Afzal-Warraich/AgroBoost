@@ -10,6 +10,7 @@ interface FarmerData {
   city?: string;
   address?: string;
   budget?: number;
+  coins?: number;
   // Add other fields as needed
 }
 

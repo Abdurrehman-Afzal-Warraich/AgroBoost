@@ -8,6 +8,13 @@ const ChatScreen = () => {
 //   const { expertId, farmerId } = route.params;
 const farmerId =  "60d0fe4f5311236168a109ca"
   const expertId =  "60d0fe4f5311236168a109cb"
+
+const farmerName  = "DAWOOD"
+const expertName  = "Muhammad noman"
+
+console.log("Farmer Name: ", farmerName )
+console.log("Farmer Name: ", expertName)
+
   console.log(expertId, farmerId);
 
   return (

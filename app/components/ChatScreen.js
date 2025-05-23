@@ -22,6 +22,7 @@ import ImagePicker from "../components/ImagePicker"
 import TypingIndicator from "../components/TypingIndicator"
 import { SERVER_URL } from "../utils/constants"
 import { emitStopTyping, emitTyping, socket } from "../utils/socket"
+import { faR } from "@fortawesome/free-solid-svg-icons"
 
 // Define fallback functions in case the imported ones are undefined
 const safeEmitTyping = (data) => {
@@ -61,9 +62,23 @@ const ChatScreenComponent = ({ currentUserId, otherUserId, userType }) => {
   const typingTimeoutRef = useRef(null)
   const isMounted = useRef(true)
 
+
+const farmerName  = "DAWOOD"
+const expertName  = "Muhammad noman"
+
+console.log("Farmer Name: ", farmerName)
+console.log("Farmer Name: ", expertName)
   // Get user names based on user type
-  const currentUserName = userType === "farmer" ? "Dawood" : "Abdurehman"
-  const otherUserName = userType === "farmer" ? "Abdurehman" : "Dawood"
+  const currentUserName = userType === "farmer" ? farmerName : expertName
+  const otherUserName = userType === "farmer" ? expertName : farmerName
+
+
+
+
+  console.log("Current User Name:", currentUserName)
+  console.log("Other User Name:", otherUserName)
+
+
 
   // Cleanup on unmount
   useEffect(() => {

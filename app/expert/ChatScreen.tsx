@@ -14,6 +14,10 @@ const route = useRoute();
 //   console.log(farmerId,expertId);
 const farmerId =  "60d0fe4f5311236168a109ca"
   const expertId =  "60d0fe4f5311236168a109cb"
+
+
+
+
 console.log(farmerId,expertId);
   return (
     <View style={styles.container}>

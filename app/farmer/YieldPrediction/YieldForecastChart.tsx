@@ -33,7 +33,7 @@ const YieldForecastChart: React.FC<YieldForecastChartProps> = ({ predictionData,
   const createLabels = () => {
     return ROUND_TO_MONTH_MAPPING.map((item, index) => {
       const hasPrediction = predictionData.predictionHistory.some((p) => p.round === index + 1)
-      return `${item.month}\n${hasPrediction ? `R${index + 1}` : ""}`
+      return `R${index + 1}`
     })
   }
 
@@ -65,7 +65,7 @@ const YieldForecastChart: React.FC<YieldForecastChartProps> = ({ predictionData,
                 ? [
                     {
                       data: cityAverageLine,
-                      color: (opacity = 1) => `rgba(30, 136, 229, ${opacity})`, // Brighter blue for city average
+                      color: (opacity = 1) => `rgba(50, 136, 200, ${opacity})`, // Brighter blue for city average
                       strokeWidth: 3, // Thicker line for city average
                       withDots: false,
                     },

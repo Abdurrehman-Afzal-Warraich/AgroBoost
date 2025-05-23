@@ -16,6 +16,8 @@
   "expert": "EXPERT",
   "buyer": "BUYER",
   "changeLanguage": "Change Language",
+  "agribot.help.title" : "AgriBot Help",
+  "agribot.fieldManagement.title" : "Field Management",
   "menu": "Menu",
   "account": "Account",
   "messages": "Messages",
