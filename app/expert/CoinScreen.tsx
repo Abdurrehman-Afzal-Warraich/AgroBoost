@@ -50,10 +50,12 @@ const CoinScreen = () => {
           {consultations.map((item, i) => (
             <ListItem key={i} bottomDivider>
               <ListItem.Content>
-                <ListItem.Title>{item.farmer}</ListItem.Title>
-                <ListItem.Subtitle>{item.date} - {item.duration}</ListItem.Subtitle>
+                <View>
+                  <Text style={{fontWeight: 'bold', fontSize: 16}}>{item.farmer}</Text>
+                  <Text style={{color: '#666', fontSize: 14}}>{item.date} - {item.duration}</Text>
+                </View>
               </ListItem.Content>
-              < Text style={styles.earned}>+{item.coins}</ Text>
+              <Text style={styles.earned}>+{item.coins}</Text>
             </ListItem>
           ))}
         </View>

@@ -73,12 +73,7 @@ const AccountTab = () => {
       color: '#4CAF50', // Green
     },
     
-    {
-      title: t('Settings'),
-      icon: 'settings',
-      onPress: () => router.push('/buyer/Settings'),
-      color: '#2196F3', // Blue
-    },
+    
     {
       title: t('Help'),
       icon: 'help-outline',

@@ -11,6 +11,7 @@ import CoinDisplay from '../../components/CoinDisplay';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import { useExpert } from './hooks/fetch_expert';
+import { set } from 'firebase/database';
 
 
 const Tab = createBottomTabNavigator();
@@ -24,6 +25,7 @@ const TabIcon = ({ name, color, size = 26 }: { name: string; color: string; size
 const ExpertDashboard = () => {
   const { t, i18n } = useTranslation();
   const [coins, setCoins] = useState(200);
+  const [rs, setRs] = useState(0);
   const navigation = useNavigation();
   const { profileData, updateProfilePicture } = useExpert();
 
@@ -36,6 +38,7 @@ const ExpertDashboard = () => {
     const fetchCoins = async () => {
       if (profileData) {
         setCoins(profileData.coins);
+        setRs(profileData.coins * 10); // Assuming 1 agroCoin = 0.1 Rs
       }
     };
     fetchCoins();
@@ -95,7 +98,7 @@ const ExpertDashboard = () => {
         style={styles.coinButton}
         onPress={() => navigation.navigate('expert/CoinScreen' as never)}
       >
-        <CoinDisplay coins={coins} />
+        <CoinDisplay coins={coins} rs = {rs} />
       </TouchableOpacity>
       
             <TouchableOpacity 
@@ -179,7 +182,7 @@ const styles = StyleSheet.create({
   languageToggle: {
     position: 'absolute',
     top: 3,
-    right: 85,
+    right: 150,
     backgroundColor: 'rgba(255, 193, 7, 0.8)',
     paddingVertical: 8,
     paddingHorizontal: 15,

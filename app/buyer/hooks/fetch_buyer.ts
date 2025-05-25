@@ -8,10 +8,12 @@ import { db, my_auth } from '../../../firebaseConfig';
  */
 export const useBuyer = () => {
   const [profileData, setProfileData] = useState({
+    name: '',
     businessName: '',
     businessType: '',
     transactions: 0,
     coins: 0,
+    city : '',
     profilePicture: '',
     preferredLanguage: 'en',
     phoneNumber: '',
@@ -42,6 +44,8 @@ export const useBuyer = () => {
         }
         
         setProfileData({
+          name: data.name || '',
+          city: data.city || '',  
           businessName: businessName,
           businessType: data.businessType || '',
           transactions: data.transactions || 0,

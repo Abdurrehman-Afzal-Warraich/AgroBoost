@@ -221,7 +221,7 @@ const AuctionSystemTab = () => {
                 <View style={styles.profileSection}>
                   <Image
                     source={{
-                      uri: item.farmerPhoto || 'https://via.placeholder.com/100',
+                      uri: item.farmerPhoto || '../../assets/images/farmer.png',
                     }}
                     style={styles.profilePhoto}
                   />

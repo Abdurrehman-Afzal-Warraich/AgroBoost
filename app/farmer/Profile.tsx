@@ -254,7 +254,8 @@ const Profile = () => {
       <View style={styles.profileSection}>
         <View style={styles.imageContainer}>
           <ProfilePicture
-            imageUrl={imageUrl || farmerData?.profilePicture || ''}
+            imageUrl={imageUrl || farmerData.profilePicture || ''}
+            size={120}
             userId={my_auth.currentUser?.uid || ''}
             userType="farmer"
             onImageUpdated={handleImageUpdated}
@@ -269,18 +270,7 @@ const Profile = () => {
       </View>
 
       <View style={styles.detailsCard}>
-        {/* Update Icon */}
-        <TouchableOpacity 
-          style={styles.updateButton}
-          onPress={handleUpdatePress}
-          disabled={updateLoading}
-        >
-          <MaterialCommunityIcons 
-            name="pencil-circle" 
-            size={32} 
-            color="#4CAF50" 
-          />
-        </TouchableOpacity>
+        
 
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
@@ -329,6 +319,18 @@ const Profile = () => {
 
         
       </View>
+
+       <TouchableOpacity 
+          style={styles.updateButton}
+          onPress={handleUpdatePress}
+          disabled={updateLoading}
+        >
+          <MaterialCommunityIcons 
+            name="pencil-circle" 
+            size={32} 
+            color="#4CAF50" 
+          />
+        </TouchableOpacity>
 
       {/* Update Modal */}
       <Modal
@@ -496,17 +498,13 @@ const styles = StyleSheet.create({
   },
   updateButton: {
     position: 'absolute',
-    top: 2,
-    right: 6,
-    zIndex: 1,
-    backgroundColor: '#F0F8F0',
+    top: 10,
+    right: 10,
+    backgroundColor: '#fff',
     borderRadius: 20,
     padding: 5,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    elevation: 3,
+    zIndex: 10,
   },
   statsContainer: {
     flexDirection: 'row',

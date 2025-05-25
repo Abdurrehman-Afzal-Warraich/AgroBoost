@@ -287,7 +287,7 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="buyer/AuctionSystemTab"
-              options={{ headerShown: false }}
+              options={{ ...commonHeaderOptions, title: t("Auction") }}
             />
           </Stack>
         </ThemeProvider>

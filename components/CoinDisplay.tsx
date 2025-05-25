@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { View, StyleSheet, Text, Image } from 'react-native';
 
 interface CoinDisplayProps {
   coins: number;
@@ -10,8 +9,10 @@ interface CoinDisplayProps {
 const CoinDisplay: React.FC<CoinDisplayProps> = ({ coins , rs} ) => {
   return (
     <View style={styles.container}>
-      <Icon name="coins" type="font-awesome-5" color="#FFC107" size={20} />
-      <  Text style={styles.coinText}>{coins} ({rs} Rs)</  Text>
+      <Image source={require('../assets/coins_1027961.png')} style={styles.icon} />
+      <Text style={styles.coinText}>{coins}</Text>
+      <Image source={require('../assets/rupee_10536109.png')} style={[styles.icon, { marginLeft: 12 }]} />
+      <Text style={styles.coinText}>{rs} Rs</Text>
     </View>
   );
 };
@@ -21,7 +22,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 10,
-    
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
   },
   coinText: {
     color: '#FFC107',

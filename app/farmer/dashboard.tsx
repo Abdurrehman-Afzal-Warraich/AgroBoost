@@ -138,7 +138,7 @@ const styles = {
   languageToggle: {
     position: 'absolute',
     top: -6,
-    right: 130,
+    right: 150,
     backgroundColor: 'rgba(255, 193, 7, 0.8)',
     paddingVertical: 8,
     paddingHorizontal: 15,

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { View, TouchableOpacity, Image, StyleSheet, Alert } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { launchImageLibraryAsync, requestMediaLibraryPermissionsAsync } from "expo-image-picker"
@@ -16,9 +16,62 @@ interface ProfilePictureProps {
   onImageUpdated?: (url: string) => void
 }
 
-const ProfilePicture: React.FC<ProfilePictureProps> = ({ imageUrl, size = 120, userId, userType, onImageUpdated }) => {
+const ProfilePicture: React.FC<ProfilePictureProps> = ({ 
+  imageUrl: propImageUrl, 
+  size = 120, 
+  userId, 
+  userType, 
+  onImageUpdated 
+}) => {
   const { t } = useTranslation()
   const [uploading, setUploading] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | undefined>(propImageUrl)
+
+  // Fetch profile image when component mounts or userId changes
+  useEffect(() => {
+    if (userId && !propImageUrl) {
+      getProfileImage()
+    } 
+    
+  }, [userId, propImageUrl])
+
+  // Update local state when prop changes
+  useEffect(() => {
+    if (propImageUrl) setCurrentImageUrl(propImageUrl)
+  }, [propImageUrl])
+
+  // Utility to fix localhost URLs for mobile devices
+  const fixLocalhostUrl = (url: string) => {
+    if (url.startsWith('http://localhost')) {
+      return url.replace('http://localhost', 'http://192.168.18.72');
+    }
+    return url;
+  };
+
+  const getProfileImage = async () => {
+    try {
+      setLoading(true)
+      console.log("Fetching profile image for userId:", userId)
+      const response = await fetch(`${SERVER_URL}/api/profile/${userId}`)
+      const result = await response.json()
+      console.log("Profile image fetch response:", result)
+      if (result.success && result.data?.imageUrl) {
+        // Ensure absolute URL
+        const imageUrl = fixLocalhostUrl(result.data.imageUrl)
+        setCurrentImageUrl(imageUrl)
+        if (onImageUpdated) {
+          onImageUpdated(imageUrl)
+        }
+      } else {
+        console.log("No profile image found or fetch failed")
+      }
+    } catch (error) {
+      console.error("Error fetching profile image:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const pickImage = async () => {
     try {
@@ -86,10 +139,11 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({ imageUrl, size = 120, u
 
       const data = await response.json()
       console.log("Upload response:", data)
-
       if (data.success && data.data.imageUrl) {
+        const imageUrl = fixLocalhostUrl(data.data.imageUrl)
+        setCurrentImageUrl(imageUrl)
         if (onImageUpdated) {
-          onImageUpdated(data.data.imageUrl)
+          onImageUpdated(imageUrl)
         }
       } else {
         throw new Error(data.message || "Failed to upload image")
@@ -104,15 +158,31 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({ imageUrl, size = 120, u
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
-      {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={[styles.image, { width: size, height: size }]} />
+      {currentImageUrl ? (
+        <Image 
+          source={{ uri: currentImageUrl }} 
+          style={[styles.image, { width: size, height: size }]} 
+          resizeMode="cover"
+        />
       ) : (
         <View style={[styles.placeholder, { width: size, height: size }]}>
-          <MaterialCommunityIcons name="account" size={size * 0.6} color="#FFFFFF" />
+          {loading ? (
+            <MaterialCommunityIcons name="loading" size={size * 0.6} color="#FFFFFF" />
+          ) : (
+            <MaterialCommunityIcons name="account" size={size * 0.6} color="#FFFFFF" />
+          )}
         </View>
       )}
-      <TouchableOpacity style={[styles.uploadButton, { right: 0, bottom: 0 }]} onPress={pickImage} disabled={uploading}>
-        <MaterialCommunityIcons name="plus-circle" size={32} color="#4CAF50" />
+      <TouchableOpacity 
+        style={[styles.uploadButton, { right: 0, bottom: 0 }]} 
+        onPress={pickImage} 
+        disabled={uploading || loading}
+      >
+        <MaterialCommunityIcons 
+          name={uploading ? "loading" : "plus-circle"} 
+          size={32} 
+          color="#4CAF50" 
+        />
       </TouchableOpacity>
     </View>
   )

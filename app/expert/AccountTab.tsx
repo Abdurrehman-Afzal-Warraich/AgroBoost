@@ -77,12 +77,7 @@ const AccountTab = () => {
       onPress: () => router.push('/expert/Profile'),
       color: '#4CAF50', // Green
     },
-    {
-      title: t('Settings'),
-      icon: 'settings',
-      onPress: () => router.push('/expert/Settings'),
-      color: '#2196F3', // Blue
-    },
+   
     
     {
       title: t('Help'),
