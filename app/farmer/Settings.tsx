@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity , Text} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useRouter } from 'expo-router';
 
@@ -7,12 +7,6 @@ const Settings = () => {
   const router = useRouter();
   
   const settingsItems = [
-    {
-      title: 'Profile Settings',
-      icon: 'person-outline',
-      route: 'farmer/ProfileSettings',
-      description: 'Update your personal information'
-    },
     {
       title: 'Change PIN Code',
       icon: 'lock-outline',
@@ -26,7 +20,7 @@ const Settings = () => {
   };
 
   return (
-    < View style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.settingsCard}>
         {settingsItems.map((item, index) => (
           <TouchableOpacity 
@@ -47,12 +41,12 @@ const Settings = () => {
                 />
               </View>
               <View style={styles.textContainer}>
-                < Text style={styles.settingTitle}>
+                <Text style={styles.settingTitle}>
                   {item.title}
-                </ Text>
-                < Text style={styles.settingDescription}>
+                </Text>
+                <Text style={styles.settingDescription}>
                   {item.description}
-                </ Text>
+                </Text>
               </View>
             </View>
             <Icon
@@ -64,7 +58,7 @@ const Settings = () => {
           </TouchableOpacity>
         ))}
       </View>
-    </ View>
+    </View>
   );
 };
 
@@ -74,7 +68,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     padding: 15,
     justifyContent: 'center',
-    
   },
   settingsCard: {
     backgroundColor: '#FFFFFF',
@@ -127,4 +120,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Settings; 
+export default Settings;

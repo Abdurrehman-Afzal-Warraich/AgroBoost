@@ -97,6 +97,10 @@ export default function RootLayout() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="farmer/ChangePinCode"
+              options={{ ...commonHeaderOptions, title: t("Change PIN") }}
+            />
+            <Stack.Screen
               name="farmer/Profile"
               options={{ ...commonHeaderOptions, title: t("Profile") }}
             />
