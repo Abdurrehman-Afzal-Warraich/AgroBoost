@@ -4,41 +4,57 @@ import { useTranslation } from 'react-i18next';
 import { useUser } from '../context/UserProvider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ProfilePicture from '../components/ProfilePicture';
-
+import { useProfileImage } from '../hooks/useProfileImage';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { db, my_auth } from '../../firebaseConfig';
 import { useFarmer } from '../hooks/fetch_farmer';
-import { use } from 'i18next';
-import { collection, query, where, orderBy, onSnapshot, doc, getDoc, type Timestamp, limit } from "firebase/firestore"
-import { getAuth } from "firebase/auth"
 
+interface FarmerData {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  city: string;
+  budget: string;
+  coins: number;
+  profilePicture?: string;
+}
 
 const Profile = () => {
   const { t, i18n } = useTranslation();
   const { userName, email, city } = useUser();
   const { farmerData , loading: farmerLoading} = useFarmer();
   const [consultations, setConsultations] = useState(0);
+  const { imageUrl, loading: imageLoading, uploadImage } = useProfileImage(
+    my_auth.currentUser?.uid || '',
+    'farmer'
+  );
   
   const getFarmerConsultationCount = async () => {
-      const auth = getAuth()
-      const user = auth.currentUser
-  
-      if (user) {
-        const consultationsRef = collection(db, "consultations")
-        const q = query(consultationsRef, where("farmerId", "==", user.uid), where("status", "==", "active"))
-  
-        const unsubscribe = onSnapshot(
-          q,
-          (snapshot) => {
-            setConsultations(snapshot.size)
-          },
-          (error) => {
-            console.error("Error fetching consultations:", error)
-          },
-        )
-  
-        return () => unsubscribe()
-      }
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+      const consultationsRef = collection(db, "consultations");
+      const q = query(
+        consultationsRef, 
+        where("farmerId", "==", user.uid), 
+        where("status", "==", "active")
+      );
+
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot: any) => {
+          setConsultations(snapshot.size);
+        },
+        (error: Error) => {
+          console.error("Error fetching consultations:", error);
+        }
+      );
+
+      return () => unsubscribe();
     }
+  };
 
   useEffect(() => {
     getFarmerConsultationCount();
@@ -46,10 +62,14 @@ const Profile = () => {
   }, [farmerData]);
 
 
-  if (farmerLoading) {
+  const handleImageUpdated = async () => {
+    await uploadImage();
+  };
+
+  if (farmerLoading || imageLoading) {
     return (
       <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color="#FFC107" />
+        <ActivityIndicator size="large" color="#FFC107" />
       </View>
     );
   }
@@ -62,17 +82,12 @@ const Profile = () => {
     );
   }
 
-
-  const handleImageUpdated = (url: string) => {
-    setProfileData(prev => ({ ...prev, profilePicture: url }));
-  };
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileSection}>
         <View style={styles.imageContainer}>
           <ProfilePicture
-            imageUrl={farmerData?.profilePicture || ''}
+            imageUrl={imageUrl || farmerData?.profilePicture || ''}
             userId={my_auth.currentUser?.uid || ''}
             userType="farmer"
             onImageUpdated={handleImageUpdated}
@@ -96,7 +111,6 @@ const Profile = () => {
             <Text style={styles.statValue}>{consultations || 0}</Text>
             <Text style={styles.statLabel}>{t('Consultations')}</Text>
           </View>
-          
         </View>
 
         <View style={styles.infoSection}>
@@ -125,14 +139,12 @@ const Profile = () => {
           </View>
 
           <View style={styles.infoItem}>
-            <MaterialCommunityIcons name="cash" size={24} color="#4CAF50" size={24} color="#4CAF50" />
+            <MaterialCommunityIcons name="cash" size={24} color="#4CAF50" />
             <View style={styles.infoTextContainer}>
               <Text style={styles.infoLabel}>{t('Budget')}</Text>
               <Text style={styles.infoValue}>{farmerData?.budget || ''}</Text>
             </View>
           </View>
-
-
         </View>
       </View>
     </ScrollView>
@@ -255,4 +267,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profile; 
+export default Profile;

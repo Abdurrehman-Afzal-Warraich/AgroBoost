@@ -64,7 +64,7 @@ const LandingPage = () => {
             color="#2E7D32"
             size={24}
           />
-          <Text style={styles.helpText}>{t("agribot.help")}</Text>
+          <Text style={styles.helpText}>{t("agribot.Help")}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

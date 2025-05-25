@@ -4,13 +4,14 @@ import { Icon } from 'react-native-elements';
 
 interface CoinDisplayProps {
   coins: number;
+  rs: number;
 }
 
-const CoinDisplay: React.FC<CoinDisplayProps> = ({ coins }) => {
+const CoinDisplay: React.FC<CoinDisplayProps> = ({ coins , rs} ) => {
   return (
     <View style={styles.container}>
       <Icon name="coins" type="font-awesome-5" color="#FFC107" size={20} />
-      <  Text style={styles.coinText}>{coins}</  Text>
+      <  Text style={styles.coinText}>{coins} ({rs} Rs)</  Text>
     </View>
   );
 };

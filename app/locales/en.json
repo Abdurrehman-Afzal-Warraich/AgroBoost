@@ -28,6 +28,9 @@
   "Enter Email": "Enter Email",
   "Field Details": "Field Details",
   "AgriBot":"AgriBot",
+  "Not satisfied with the chatbot's suggestions? Don't worry — you're not alone. Sometimes problems need a real human touch. Reach out to our agricultural experts for personalized help tailored to your needs.": "Not satisfied with the chatbot's suggestions? Don't worry — you're not alone. Sometimes problems need a real human touch. Reach out to our agricultural experts for personalized help tailored to your needs.",
+  "Talk to an Expert": "Talk to an Expert",
+  "Need More Help?": "Need More Help?",
   "fieldDetails": {
     "title": "Field Details",
     "addFields": "Add Fields",
@@ -158,6 +161,7 @@
   "temperature": "Temperature",
   "condition": "Condition",
   "humidity": "Humidity",
+  
   "Initial prediction data created successfully": "Initial prediction data created successfully",
   "Error fetching yield prediction": "Error fetching yield prediction",
   "No field data available for prediction": "No field data available for prediction",
@@ -332,7 +336,7 @@
   "agribot": {
     "title": "Welcome to AgriBot",
     "description": "Your smart farming assistant. Get expert advice and solutions for your agricultural needs.",
-    "help": "Need Help?",
+    "Help": "Need Help?",
     "loading": "Loading...",
     "submit": "Submit",
     "options": {
@@ -563,6 +567,7 @@
     "cotton": "Cotton",
     "maize": "Maize",
     "vegetables": "Vegetables",
+    "tomato": "Tomato",
     "others": "Others"
   },
   "growthStages": {
@@ -570,7 +575,7 @@
     "germination": "Germination",
     "vegetative": "Vegetative",
     "flowering": "Flowering",
-    "maturity": "Maturity",
+    "mature": "Mature",
     "harvesting": "Harvesting"
   },
   "fieldSizeUnits": {

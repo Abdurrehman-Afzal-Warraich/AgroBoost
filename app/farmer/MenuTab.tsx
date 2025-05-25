@@ -135,10 +135,11 @@ const MenuTab = () => {
       icon: require('../../assets/images/farmer-icons/manager.png'), 
       route: '/farmer/SchemesList'
     },
+    
     { 
       name: t('AgriBot'),
       styles: { size: 30 },
-      icon: require('../../assets/bot-logo.png'),
+      icon: require('../../assets/chatbot_6231553.png'),
       route: '/farmer/Agribot/LandingPage'
     },
   ];
@@ -275,7 +276,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 70,
+    paddingBottom: 100,
   },
   header: {
     padding: 20,

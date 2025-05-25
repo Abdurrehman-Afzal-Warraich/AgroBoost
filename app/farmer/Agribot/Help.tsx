@@ -28,75 +28,9 @@ const Help = () => {
   const [description, setDescription] = useState('');
   const router = useRouter();
 
-  const issueCategories: IssueCategory[] = [
-    {
-      key: 'technical',
-      title: 'Technical Issues',
-      icon: 'laptop',
-      description: 'Problems with app functionality, crashes, or errors',
-    },
-    {
-      key: 'account',
-      title: 'Account Related',
-      icon: 'account',
-      description: 'Issues with login, profile, or account settings',
-    },
-    {
-      key: 'payment',
-      title: 'Payment Issues',
-      icon: 'credit-card',
-      description: 'Problems with transactions or coin purchases',
-    },
-    {
-      key: 'feature',
-      title: 'Feature Request',
-      icon: 'lightbulb-on',
-      description: 'Suggest new features or improvements',
-    },
-    {
-      key: 'other',
-      title: 'Other Issues',
-      icon: 'help-circle',
-      description: 'Any other problems or questions',
-    },
-  ];
+  
 
-  const handleSubmit = async () => {
-    if (!selectedCategory || !description.trim()) {
-      Alert.alert(
-        'Error',
-        'Please select an issue category and provide a description',
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulated API call
-      Alert.alert(
-        'Success',
-        'Your issue has been reported successfully. We will get back to you soon.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              setSelectedCategory(null);
-              setDescription('');
-            },
-          },
-        ]
-      );
-    } catch (error) {
-      Alert.alert(
-        'Error',
-        'Failed to submit your issue. Please try again.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  
 
   const handleExpertConsultation = () => {
     router.push('/farmer/ExpertConsultation');
@@ -108,17 +42,15 @@ const Help = () => {
         {/* Expert Consultation Section */}
         <View style={styles.expertAdviceContainer}>
           <MaterialCommunityIcons name="account-tie" size={40} color="#4CAF50" />
-          <Text style={styles.expertAdviceTitle}>Need More Help?</Text>
+          <Text style={styles.expertAdviceTitle}>{t('Need More Help?')}</Text>
           <Text style={styles.expertAdviceText}>
-            Not satisfied with the chatbot's suggestions? Don't worry — you're not alone.
-            Sometimes problems need a real human touch. Reach out to our agricultural experts
-            for personalized help tailored to your needs.
+            {t("Not satisfied with the chatbot's suggestions? Don't worry — you're not alone. Sometimes problems need a real human touch. Reach out to our agricultural experts for personalized help tailored to your needs.")}
           </Text>
           <TouchableOpacity
             style={styles.expertButton}
             onPress={handleExpertConsultation}
           >
-            <Text style={styles.expertButtonText}>Talk to an Expert</Text>
+            <Text style={styles.expertButtonText}>{t('Talk to an Expert')}</Text>
             <MaterialCommunityIcons name="arrow-right" size={20} color="white" />
           </TouchableOpacity>
         </View>

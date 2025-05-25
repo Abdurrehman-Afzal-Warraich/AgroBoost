@@ -24,7 +24,7 @@ socket.on("disconnect", () => {
 })
 
 socket.on("connect_error", (error) => {
-  console.error("Socket connection error:", error)
+  console.log("Socket connection error:", error)
   // Attempt to reconnect after a delay
   setTimeout(() => {
     socket.connect()

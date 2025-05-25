@@ -9,6 +9,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"
 import Toast from '../../components/Toast'
 import axios from 'axios'
 import { FASTAPI_URL } from "@/app/utils/constants"
+import { loadAsync } from "expo-font"
 
 interface FormData {
   cropType: string
@@ -623,8 +624,8 @@ const FieldManagementScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t("fieldManagement.title")}</Text>
-        <Text style={styles.headerSubtitle}>{t("fieldManagement.subtitle")}</Text>
+        
+        <Text style={styles.headerTitle}>{t("fieldManagement.subtitle")}</Text>
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
@@ -645,13 +646,30 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F5F5F5",
   },
+  noRecommendationsText:{
+    fontSize: 16,
+    color: "#757575",
+    textAlign: "center",
+    marginTop: 20,
+
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#4CAF50",
+    marginTop: 10,
+  },
   header: {
     padding: 20,
     paddingTop: Platform.OS === "ios" ? 60 : 40,
     backgroundColor: "#4CAF50",
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#FFFFFF",
     textAlign: "center",
@@ -719,7 +737,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   picker: {
-    height: 50,
+    height: 55,
     width: "100%",
   },
   textInput: {

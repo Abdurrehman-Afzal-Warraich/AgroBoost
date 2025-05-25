@@ -26,10 +26,12 @@ const FarmerDashboard = () => {
   const [coins, setCoins] = useState(0);
   const navigation = useNavigation();
   const { farmerData, loading: farmerLoading } = useFarmer();
+  const [rs, setRs] = useState(0);
 
   useEffect(() => {
     if (farmerData?.coins !== undefined) {
       setCoins(farmerData.coins);
+      setRs(farmerData.coins * 10); // Assuming 1 agroCoin = 0.1 Rs
     }
   }, [farmerData?.coins]);
 
@@ -96,7 +98,7 @@ const FarmerDashboard = () => {
               <TouchableOpacity 
               style={styles.coinButton}
               onPress={() => navigation.navigate('farmer/CoinScreen')}>
-                <CoinDisplay coins={coins} />
+                <CoinDisplay coins={coins} rs = {rs}/>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -136,7 +138,7 @@ const styles = {
   languageToggle: {
     position: 'absolute',
     top: -6,
-    right: 65,
+    right: 130,
     backgroundColor: 'rgba(255, 193, 7, 0.8)',
     paddingVertical: 8,
     paddingHorizontal: 15,

@@ -189,7 +189,7 @@ const PlantDiseases = () => {
         cropType: formData.cropType,
         affectedPart: formData.affectedPart,
         farmerObservation: formData.farmerObservation,
-        language: formData.language,
+        language: i18n.language,
         soilType: formData.soilType,
         growthStage: formData.growthStage,
         image: formData.image ? "Image attached" : "No image"
@@ -348,9 +348,8 @@ const PlantDiseases = () => {
     )
   }
 
-  // Farmer observation options
+  // Farmer observation options - Filter out empty values
   const farmerObservationOptions = [
-    { label: t("plantDiseases.selectObservation"), value: "" },
     { label: t("farmerObservations.yellowingLeaves"), value: "yellowing_leaves" },
     { label: t("farmerObservations.blackSpots"), value: "black_spots" },
     { label: t("farmerObservations.wiltingPlant"), value: "wilting_plant" },
@@ -364,8 +363,7 @@ const PlantDiseases = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t("plantDiseases.title")}</Text>
-        <Text style={styles.headerSubtitle}>{t("plantDiseases.subtitle")}</Text>
+        <Text style={styles.headerTitle}>{t("plantDiseases.subtitle")}</Text>
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
@@ -466,41 +464,38 @@ const PlantDiseases = () => {
             )}
           </View>
 
-          {/* Farmer Observation - Changed to dropdown */}
+          {/* Farmer Observation - Radio Buttons */}
           <View style={styles.formGroup}>
             <Text style={[styles.label, isRTL && styles.rtlText]}>{t("plantDiseases.farmerObservation")}</Text>
-            <View style={[styles.pickerContainer, formErrors.farmerObservation ? styles.inputError : null]}>
-              <Picker
-                selectedValue={formData.farmerObservation}
-                onValueChange={(value) => handleFieldDataChange("farmerObservation", value)}
-                style={[styles.picker, isRTL && styles.rtlText]}
-                dropdownIconColor="#4CAF50"
-              >
-                {farmerObservationOptions.map((option) => (
-                  <Picker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </Picker>
+            <View style={[styles.radioContainer, formErrors.farmerObservation ? styles.inputError : null]}>
+              {farmerObservationOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.radioOption,
+                    isRTL && styles.rtlContainer,
+                    formData.farmerObservation === option.value && styles.radioOptionSelected
+                  ]}
+                  onPress={() => handleFieldDataChange("farmerObservation", option.value)}
+                >
+                  <View style={[styles.radio, formData.farmerObservation === option.value && styles.radioSelected]}>
+                    {formData.farmerObservation === option.value && (
+                      <View style={styles.radioInner} />
+                    )}
+                  </View>
+                  <Text style={[
+                    styles.radioText,
+                    isRTL && styles.rtlText,
+                    formData.farmerObservation === option.value && styles.radioTextSelected
+                  ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
             {formErrors.farmerObservation && (
               <Text style={[styles.errorText, isRTL && styles.rtlText]}>{formErrors.farmerObservation}</Text>
             )}
-          </View>
-
-          {/* Language Selection */}
-          <View style={styles.formGroup}>
-            <Text style={[styles.label, isRTL && styles.rtlText]}>{t("plantDiseases.language")}</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={formData.language}
-                onValueChange={(value) => handleFieldDataChange("language", value)}
-                style={[styles.picker, isRTL && styles.rtlText]}
-                dropdownIconColor="#4CAF50"
-              >
-                <Picker.Item label="English" value="English" />
-                <Picker.Item label="اردو (Urdu)" value="Urdu" />
-                <Picker.Item label="پنجابی (Punjabi)" value="Punjabi" />
-              </Picker>
-            </View>
           </View>
 
           {/* Image Upload */}
@@ -550,7 +545,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#4CAF50",
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#FFFFFF",
     textAlign: "center",
@@ -599,7 +594,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   picker: {
-    height: 50,
+    height: 55,
     width: "100%",
   },
   imageUploadButton: {
@@ -713,9 +708,55 @@ const styles = StyleSheet.create({
   },
   rtlText: {
     textAlign: "right",
+    left: 10
   },
   rtlContainer: {
     flexDirection: "row-reverse",
+  },
+  radioContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    padding: 5,
+  },
+  radioOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginVertical: 4,
+    backgroundColor: "#F9FFF9",
+  },
+  radioOptionSelected: {
+    backgroundColor: "#E8F5E9",
+  },
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#4CAF50",
+    marginRight: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radioSelected: {
+    borderColor: "#4CAF50",
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#4CAF50",
+  },
+  radioText: {
+    fontSize: 16,
+    color: "#333333",
+    flex: 1,
+  },
+  radioTextSelected: {
+    color: "#1B5E20",
+    fontWeight: "bold",
   },
 })
 

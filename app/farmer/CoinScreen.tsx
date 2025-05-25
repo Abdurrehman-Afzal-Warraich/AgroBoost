@@ -44,17 +44,18 @@ const CoinScreen = () => {
           <Text style={styles.sectionTitle}>
             {i18n.language === 'ur' ? 'لین دین کی تاریخ' : t('Transaction History')}
           </Text>
-          {transactions.map((item, i) => (
-            <ListItem key={i} bottomDivider>
+          {transactions.map((item, i) => (            <ListItem key={i} bottomDivider>
               <ListItem.Content>
-                <ListItem.Title>
-                  {i18n.language === 'ur' ? 
-                    (item.service === 'Yield Prediction' ? 'پیداوار کی پیش گوئی' :
-                     item.service === 'Expert Consultation' ? 'ماہر مشاورت' :
-                     'فصل کی فروخت (نیلامی)') : 
-                    item.service}
-                </ListItem.Title>
-                <ListItem.Subtitle>{item.date}</ListItem.Subtitle>
+                <View>
+                  <Text style={styles.titleText}>
+                    {i18n.language === 'ur' ? 
+                      (item.service === 'Yield Prediction' ? 'پیداوار کی پیش گوئی' :
+                       item.service === 'Expert Consultation' ? 'ماہر مشاورت' :
+                       'فصل کی فروخت (نیلامی)') : 
+                      item.service}
+                  </Text>
+                  <Text style={styles.subtitleText}>{item.date}</Text>
+                </View>
               </ListItem.Content>
               <Text style={item.type === 'Spent' ? styles.spent : styles.earned}>
                 {item.type === 'Spent' ? '-' : '+'}{item.amount}
@@ -68,6 +69,16 @@ const CoinScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  titleText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  subtitleText: {
+    fontSize: 14,
+    color: '#666666',
+    marginTop: 4,
+  },
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',

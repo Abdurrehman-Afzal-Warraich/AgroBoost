@@ -442,8 +442,8 @@ const CropAdvice = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t("cropAdvice.title")}</Text>
-        <Text style={styles.headerSubtitle}>{t("cropAdvice.subtitle")}</Text>
+        
+        <Text style={styles.headerSubtitle}>{t("cropAdvice.title")}</Text>
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
